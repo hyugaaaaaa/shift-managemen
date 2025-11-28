@@ -1,0 +1,102 @@
+/* General app styles */
+body {
+	background: #f8f9fa;
+}
+
+/* Calendar cell used by dashboard */
+.calendar-cell {
+	vertical-align: top;
+	min-height: 90px;
+	padding: 0.5rem;
+	background: #ffffff;
+}
+.calendar-cell .fw-bold { font-size: 0.95rem; }
+.calendar-cell ul { padding-left: 0; margin-bottom: 0; }
+
+/* Shift entry types */
+.shift-start { color: #0d6efd; } /* blue for start */
+.shift-end { color: #dc3545; }   /* red for end */
+.shift-normal { color: #212529; }
+.shift-note { font-size: 0.8rem; color: #6c757d; margin-left: 0.25rem; }
+
+/* Small helpers */
+.small-muted { font-size: 0.85rem; color: #6c757d; }
+
+/* Confirmed shifts table spacing and styling */
+.shift-table {
+	border-collapse: separate;
+	/* smaller vertical gap between rows to tighten layout */
+	border-spacing: 0 0.35rem;
+}
+.shift-table tbody tr {
+	background: #fff;
+	/* lighter, subtler shadow */
+	box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.shift-table td {
+	padding: 0.55rem 0.75rem; /* reduced padding for denser rows */
+	vertical-align: middle;
+}
+.shift-table tbody tr td:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+.shift-table tbody tr td:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+
+/* spacing inside calendar cell lists - tightened */
+.calendar-cell ul li { margin-bottom: 0.18rem; }
+.calendar-cell ul li:last-child { margin-bottom: 0; }
+
+/* Manage wages page: narrow the input column */
+.manage-wage-input {
+	max-width: 120px; /* adjust as needed */
+}
+.wage-col {
+	width: 140px; /* reserve space for input + button */
+}
+
+/* Reduce padding for compact tables (e.g. manage wages) */
+.table.table-sm th,
+.table.table-sm td {
+	padding: 0.30rem 0.45rem; /* tighter than bootstrap default */
+	vertical-align: middle;
+}
+
+/* Make inline form elements inside table more compact */
+.table .d-flex { gap: 0.35rem; align-items: center; }
+.table .form-control-sm { padding: 0.25rem 0.4rem; height: calc(1.5em + 0.5rem); }
+
+/* Override bootstrap .me-2 to slightly reduce space for our wage input */
+.manage-wage-input { max-width: 100px; margin-right: 0.35rem !important; }
+
+/* Optional: constrain the last column where we display the rounded wage */
+.wage-col { width: 110px; }
+
+/* Tighten padding specifically for the manage-wages columns */
+.wage-input-col {
+	padding-right: 0.35rem; /* reduce space to the right of the update form */
+}
+.table.table-sm td.wage-col {
+	padding-left: 0.35rem; /* reduce space to the left of the wage display */
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+/* Tighten header for the wage column specifically */
+.table.table-sm th.wage-header {
+	padding: 0.25rem 0.35rem; /* smaller top/bottom and left/right */
+	width: 110px; /* match the body column width */
+	white-space: nowrap;
+	text-align: left;
+}
+
+/* Tighten header and cell for the user column */
+.table.table-sm th.user-header {
+	padding: 0.25rem 0.35rem;
+	width: 160px; /* set a reasonable width for the name column */
+	white-space: nowrap;
+	text-align: left;
+}
+.table.table-sm td.user-col {
+	padding-right: 0.35rem; /* reduce space between name and input */
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
