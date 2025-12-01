@@ -1,2 +1,0 @@
-git config --global user.email "hyuga0510@icloud.ocm"
-git config --global user.name "hyugaaaaaa"

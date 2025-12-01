@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
+session_start();
 require_once __DIR__ . '/../template.php';
 
 // オーナー専用ページ

@@ -9,17 +9,23 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     if($username === '' || $password === ''){
         $error = 'ユーザー名とパスワードを入力してください。';
+    } elseif (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'セッションが無効です。もう一度お試しください。';
     } else {
         $pdo = getPDO();
+        // ユーザー名でDBを検索（SQLインジェクション対策のためプリペアドステートメントを使用）
         $stmt = $pdo->prepare('SELECT user_id, username, password_hash, user_type FROM users WHERE username = ? LIMIT 1');
         $stmt->execute([$username]);
         $user = $stmt->fetch();
+        
+        // パスワードのハッシュ検証
         if($user && password_verify($password, $user['password_hash'])){
-            // 認証成功
+            // 認証成功: セッション固定攻撃対策のためにセッションIDを再生成
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['user_type'] = $user['user_type'];
+            
             // ログイン直後はダッシュボード（月表示のシフト表）へ遷移
             header('Location: dashboard.php');
             exit;
@@ -29,33 +35,5 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     }
 }
 
-render_header('ログイン');
-?>
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <h1 class="h3 mb-3">ログイン</h1>
-    <?php if(!empty($_GET['logged_out'])): ?>
-      <div class="alert alert-success">ログアウトしました。</div>
-    <?php endif; ?>
-    <?php if(!empty($_GET['registered'])): ?>
-      <div class="alert alert-success">登録が完了しました。ログインしてください。</div>
-    <?php endif; ?>
-    <?php if(!empty($error)): ?>
-      <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
-    <?php endif; ?>
-    <form method="post">
-      <div class="mb-3">
-        <label class="form-label">ユーザー名</label>
-        <input name="username" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">パスワード</label>
-        <input name="password" type="password" class="form-control" required>
-      </div>
-        <button class="btn btn-primary" type="submit">ログイン</button>
-        <a class="btn btn-link" href="register.php">新規登録はこちら</a>
-    </form>
-  </div>
-</div>
-
-<?php render_footer(); ?>
+// ビューの読み込み
+require_once __DIR__ . '/views/login_view.php';
