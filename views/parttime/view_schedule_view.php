@@ -1,4 +1,11 @@
-<?php render_header('確定シフト'); ?>
+<?php
+/**
+ * 確定シフト一覧画面のビュー
+ * 
+ * 確定したシフトの一覧を表形式で表示します。
+ * 日跨ぎシフトの場合は、分割された状態で表示されます。
+ */
+render_header('確定シフト'); ?>
 <div class="row justify-content-center">
   <div class="col-12 col-md-8">
     <div class="text-center mb-3"><h1 class="h4">確定シフト</h1></div>
