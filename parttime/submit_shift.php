@@ -9,7 +9,7 @@ if(empty($_SESSION['user_id']) || ($_SESSION['user_type'] ?? '') !== 'part-time'
 }
 
 $pdo = getPDO();
-// Prepare default values
+// 初期値の準備（フォーム再表示時などに使用）
 $shift_date = $_POST['shift_date'] ?? date('Y-m-d');
 $start_time = $_POST['start_time'] ?? '';
 $end_time = $_POST['end_time'] ?? '';
