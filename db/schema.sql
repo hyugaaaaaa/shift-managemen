@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password_hash` VARCHAR(255) NOT NULL,
   `user_type` ENUM('owner','part-time') NOT NULL DEFAULT 'part-time',
   `hourly_rate` DECIMAL(8,2) NOT NULL DEFAULT 1000.00,
+  `transportation_expense` DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -39,3 +40,12 @@ CREATE TABLE IF NOT EXISTS `shifts_scheduled` (
 
 -- サンプル初期ユーザー（パスワードは PHP の password_hash() で生成したものに置き換えてください）
 -- INSERT INTO users (username,password_hash,user_type) VALUES ('owner1', '$2y$10$...replace_with_hash...', 'owner');
+
+CREATE TABLE IF NOT EXISTS `system_settings` (
+  `setting_key` VARCHAR(50) NOT NULL,
+  `setting_value` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 初期設定投入
+INSERT IGNORE INTO `system_settings` (`setting_key`, `setting_value`) VALUES ('closing_day', '15'), ('payment_day', '25');

@@ -1,85 +1,73 @@
 <?php
 require_once __DIR__ . '/../config.php';
+session_start();
 require_once __DIR__ . '/../template.php';
 
-if(empty($_SESSION['user_id']) || ($_SESSION['user_type'] ?? '') !== 'owner'){
-    header('Location: /index.php');
+// オーナー（管理者）権限チェック
+if (empty($_SESSION['user_id']) || ($_SESSION['user_type'] ?? '') !== 'owner') {
+    header('Location: ' . BASE_PATH . '/index.php');
     exit;
 }
 
 $pdo = getPDO();
+
+// 対象月の取得
 $selected_month = $_GET['month'] ?? date('Y-m');
 
-// 月の開始日と終了日を計算
-$first_day = $selected_month . '-01';
-$last_day = date('Y-m-t', strtotime($first_day));
+// 締め日設定の取得
+$closing_day = (int)get_system_setting($pdo, 'closing_day', 15);
 
- $stmt = $pdo->prepare(
-  'SELECT u.user_id,
-      u.username,
-      u.hourly_rate,
-      COALESCE(SUM(
-        CASE
-          WHEN s.shift_date IS NULL THEN 0
-          WHEN s.end_time <= s.start_time THEN
-            TIMESTAMPDIFF(MINUTE,
-              CONCAT(s.shift_date, " ", s.start_time),
-              DATE_ADD(CONCAT(s.shift_date, " ", s.end_time), INTERVAL 1 DAY)
-            )
-          ELSE
-            TIMESTAMPDIFF(MINUTE,
-              CONCAT(s.shift_date, " ", s.start_time),
-              CONCAT(s.shift_date, " ", s.end_time)
-            )
-        END
-      ),0) AS minutes
-   FROM users u
-   LEFT JOIN shifts_scheduled s ON s.user_id = u.user_id AND s.shift_date BETWEEN ? AND ?
-   WHERE u.user_type = ?
-   GROUP BY u.user_id, u.username
-   ORDER BY u.username'
-);
-$stmt->execute([$first_day, $last_day, 'part-time']);
-$rows = $stmt->fetchAll();
+// 集計期間の計算
+$year = (int)substr($selected_month, 0, 4);
+$month = (int)substr($selected_month, 5, 2);
 
-render_header('月間勤務時間');
-?>
-<div class="row">
-  <div class="col-md-10">
-    <h2>月間勤務時間</h2>
-    <form class="row g-2 mb-3" method="get">
-      <div class="col-auto">
-        <label class="form-label">対象月</label>
-        <input type="month" name="month" class="form-control" value="<?php echo htmlspecialchars($selected_month); ?>">
-      </div>
-      <div class="col-auto align-self-end">
-        <button class="btn btn-primary">表示</button>
-      </div>
-    </form>
+// 締め日が15日の場合、対象月が 2023-11 なら、期間は 10/16 ～ 11/15
+$start_date_obj = new DateTime("$year-$month-$closing_day");
+$start_date_obj->modify('-1 month');
+$start_date_obj->modify('+1 day');
+$start_date = $start_date_obj->format('Y-m-d');
 
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>ユーザー</th>
-          <th>合計時間（時間）</th>
-          <th>給与（¥）</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach($rows as $r):
-            $hours = round($r['minutes'] / 60, 2);
-            $rate = isset($r['hourly_rate']) && is_numeric($r['hourly_rate']) ? floatval($r['hourly_rate']) : 1000.00;
-            $salary = round($hours * $rate);
-        ?>
-        <tr>
-          <td><?php echo htmlspecialchars($r['username']); ?></td>
-          <td><?php echo htmlspecialchars($hours); ?></td>
-          <td><?php echo number_format($salary); ?> <small class="text-muted">(時給 <?php echo number_format(round($rate)); ?>)</small></td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
-</div>
+$end_date_obj = new DateTime("$year-$month-$closing_day");
+$end_date = $end_date_obj->format('Y-m-d');
 
-<?php render_footer(); ?>
+// ユーザー一覧取得
+$stmt = $pdo->prepare('SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = ? ORDER BY username');
+$stmt->execute(['part-time']);
+$users = $stmt->fetchAll();
+
+// シフトデータ取得
+$stmt = $pdo->prepare('
+    SELECT * FROM shifts_scheduled 
+    WHERE shift_date BETWEEN ? AND ?
+    ORDER BY shift_date, start_time
+');
+$stmt->execute([$start_date, $end_date]);
+$shifts = $stmt->fetchAll();
+
+// 集計処理
+$user_stats = [];
+// 全ユーザーの初期化
+foreach($users as $u) {
+    $user_stats[$u['user_id']] = [
+        'user' => $u,
+        'normal_minutes' => 0, // 通常勤務時間（分）
+        'night_minutes' => 0,  // 深夜勤務時間（分）
+        'days_worked' => 0,    // 出勤日数
+        'total_pay' => 0       // 総支給額
+    ];
+}
+
+foreach($shifts as $s) {
+    if (!isset($user_stats[$s['user_id']])) continue;
+    
+    $user_stats[$s['user_id']]['days_worked']++;
+    
+    // 共通関数で時間計算
+    $times = calculate_shift_minutes($s['shift_date'], $s['start_time'], $s['end_time']);
+    
+    $user_stats[$s['user_id']]['night_minutes'] += $times['night_minutes'];
+    $user_stats[$s['user_id']]['normal_minutes'] += $times['normal_minutes'];
+}
+
+// ビューの読み込み
+require_once __DIR__ . '/../views/owner/monthly_hours_view.php';
