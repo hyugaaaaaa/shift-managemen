@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delet
             // ここでは主要なデータを明示的に削除
             $pdo->prepare("DELETE FROM shifts_scheduled WHERE user_id = ?")->execute([$delete_user_id]);
             $pdo->prepare("DELETE FROM shifts_requested WHERE user_id = ?")->execute([$delete_user_id]);
-            $pdo->prepare("DELETE FROM payslips WHERE user_id = ?")->execute([$delete_user_id]);
             
             // ユーザー削除
             $stmt = $pdo->prepare("DELETE FROM users WHERE user_id = ? AND user_type = 'part-time'");
