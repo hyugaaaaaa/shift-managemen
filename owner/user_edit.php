@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hourly_rate = $_POST['hourly_rate'] ?? 0;
     $transportation_expense = $_POST['transportation_expense'] ?? 0;
     $password = $_POST['password'] ?? '';
+    $password_confirm = $_POST['password_confirm'] ?? '';
     
     // CSRFチェック
     if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
@@ -39,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // バリデーション
     elseif (empty($username)) {
         $error = 'ユーザー名は必須です。';
+    } elseif (!empty($password) && $password !== $password_confirm) {
+        $error = 'パスワードが一致しません。';
     } else {
         try {
             if ($id) {
