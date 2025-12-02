@@ -11,15 +11,15 @@
     <?php if(!empty($error)): ?>
       <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
-    <form method="post">
+    <form method="post" autocomplete="off">
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
       <div class="mb-3">
         <label class="form-label">ユーザー名</label>
-        <input name="username" class="form-control" required>
+        <input name="username" class="form-control" required autocomplete="off">
       </div>
       <div class="mb-3">
         <label class="form-label">パスワード</label>
-        <input name="password" type="password" class="form-control" required>
+        <input name="password" type="password" class="form-control" required autocomplete="new-password">
       </div>
         <button class="btn btn-primary" type="submit">ログイン</button>
     </form>

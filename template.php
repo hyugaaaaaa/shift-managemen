@@ -49,6 +49,7 @@ function render_header($title = 'シフト管理'){
       <ul class="navbar-nav">
         <?php if(!empty($_SESSION['user_id'])): ?>
           <li class="nav-item"><span class="nav-link"><?php echo htmlspecialchars($_SESSION['username']); ?></span></li>
+          <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/help.php">ヘルプ</a></li>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/logout.php">ログアウト</a></li>
         <?php else: ?>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/index.php">ログイン</a></li>
