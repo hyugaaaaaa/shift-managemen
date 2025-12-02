@@ -66,7 +66,7 @@ $start_date = "$month-01";
 $end_date = date('Y-m-t', strtotime($start_date));
 
 // ユーザー一覧取得
-$stmt = $pdo->prepare('SELECT user_id, username FROM users WHERE user_type = ? ORDER BY username');
+$stmt = $pdo->prepare('SELECT user_id, username FROM users WHERE user_type = ? AND is_deleted = 0 ORDER BY username');
 $stmt->execute(['part-time']);
 $users = $stmt->fetchAll();
 

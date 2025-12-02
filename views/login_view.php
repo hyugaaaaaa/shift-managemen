@@ -23,6 +23,12 @@
       </div>
         <button class="btn btn-primary" type="submit">ログイン</button>
     </form>
+
+    <?php if(!empty($show_register_link) && $show_register_link): ?>
+    <div class="mt-3 text-center">
+        <a href="register.php" class="btn btn-outline-success">新規登録（初期設定）</a>
+    </div>
+    <?php endif; ?>
   </div>
 </div>
 <?php render_footer(); ?>

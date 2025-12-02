@@ -3,6 +3,13 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/template.php';
 
 // ログイン処理
+$pdo = getPDO();
+
+// 新規登録リンク表示判定
+$stmt = $pdo->query("SELECT COUNT(*) FROM users WHERE is_deleted = 0");
+$user_count = $stmt->fetchColumn();
+$show_register_link = ($user_count == 0);
+
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -12,9 +19,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     } elseif (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
         $error = 'セッションが無効です。もう一度お試しください。';
     } else {
-        $pdo = getPDO();
         // ユーザー名でDBを検索
-        $stmt = $pdo->prepare('SELECT user_id, username, password_hash, user_type, login_attempts, locked_until FROM users WHERE username = ? LIMIT 1');
+        $stmt = $pdo->prepare('SELECT user_id, username, password_hash, user_type, login_attempts, locked_until FROM users WHERE username = ? AND is_deleted = 0 LIMIT 1');
         $stmt->execute([$username]);
         $user = $stmt->fetch();
         
