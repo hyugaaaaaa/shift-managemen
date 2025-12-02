@@ -1,7 +1,20 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    // セッションの有効期限を30分に設定（ガベージコレクション用）
+    ini_set('session.gc_maxlifetime', 1800);
     session_start();
 }
+
+// セッションタイムアウト機能 (30分 = 1800秒)
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    // 最終アクティビティから30分以上経過していたらセッション破棄
+    session_unset();
+    session_destroy();
+    header('Location: ' . BASE_PATH . '/index.php?timeout=1');
+    exit;
+}
+// 最終アクティビティ時刻を更新
+$_SESSION['last_activity'] = time();
 
 // 共通ヘッダー出力関数
 function render_header($title = 'シフト管理'){
@@ -37,6 +50,8 @@ function render_header($title = 'シフト管理'){
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/users.php">従業員管理</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/monthly_hours.php">月間時間</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/attendance_approval.php">勤怠承認</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/system_settings.php">システム設定</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/export_data.php">データ出力</a></li>
           <?php else: ?>
             <!-- アルバイト用メニュー -->
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/submit_shift.php">希望提出</a></li>
@@ -49,6 +64,7 @@ function render_header($title = 'シフト管理'){
       <ul class="navbar-nav">
         <?php if(!empty($_SESSION['user_id'])): ?>
           <li class="nav-item"><span class="nav-link"><?php echo htmlspecialchars($_SESSION['username']); ?></span></li>
+          <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/change_password.php">パスワード変更</a></li>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/help.php">ヘルプ</a></li>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/logout.php">ログアウト</a></li>
         <?php else: ?>
