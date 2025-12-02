@@ -31,7 +31,7 @@ $end_date_obj = new DateTime("$year-$month-$closing_day");
 $end_date = $end_date_obj->format('Y-m-d');
 
 // ユーザー一覧取得
-$stmt = $pdo->prepare('SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = ? ORDER BY username');
+$stmt = $pdo->prepare('SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = ? AND is_deleted = 0 ORDER BY username');
 $stmt->execute(['part-time']);
 $users = $stmt->fetchAll();
 

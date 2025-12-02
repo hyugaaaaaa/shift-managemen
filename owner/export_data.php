@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $end_date = date('Y-m-t', strtotime($start_date));
 
             // 全従業員のデータを取得
-            $stmt = $pdo->prepare("SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = 'part-time'");
+            $stmt = $pdo->prepare("SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = 'part-time' AND is_deleted = 0");
             $stmt->execute();
             $users = $stmt->fetchAll();
 
