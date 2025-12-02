@@ -53,25 +53,23 @@ if ($payment_day < $closing_day) {
 $payment_date = $payment_date_obj->format('Y年m月d日');
 
 
-// シフト集計 (monthly_hours.php と同じロジック)
-// 指定期間のシフトデータを取得
-$stmt = $pdo->prepare('
-    SELECT * FROM shifts_scheduled 
-    WHERE user_id = ? AND shift_date BETWEEN ? AND ?
-');
-$stmt->execute([$target_user_id, $start_date, $end_date]);
-$shifts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// 勤務実績データ取得（予定と実績のマージ）
+$merged_records = get_merged_work_records($pdo, $start_date, $end_date, $target_user_id);
+$user_records = $merged_records[$target_user_id] ?? [];
 
 $days_worked = 0;
 $normal_minutes = 0;
 $night_minutes = 0;
 
-foreach($shifts as $s) {
+foreach ($user_records as $date => $record) {
+    // 勤務時間がない（欠勤など）場合はスキップ
+    if (empty($record['start']) || empty($record['end'])) continue;
+
     $days_worked++;
-    
+
     // 共通関数で時間計算
-    $times = calculate_shift_minutes($s['shift_date'], $s['start_time'], $s['end_time']);
-    
+    $times = calculate_shift_minutes($date, $record['start'], $record['end']);
+
     $night_minutes += $times['night_minutes'];
     $normal_minutes += $times['normal_minutes'];
 }

@@ -36,10 +36,12 @@ function render_header($title = 'シフト管理'){
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php">希望一覧</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/users.php">従業員管理</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/monthly_hours.php">月間時間</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/attendance_approval.php">勤怠承認</a></li>
           <?php else: ?>
             <!-- アルバイト用メニュー -->
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/submit_shift.php">希望提出</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/view_schedule.php">確定シフト</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/attendance_list.php">勤怠確認・修正</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/payslip_list.php">給与明細</a></li>
           <?php endif; ?>
         <?php endif; ?>

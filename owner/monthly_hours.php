@@ -35,14 +35,8 @@ $stmt = $pdo->prepare('SELECT user_id, username, hourly_rate, transportation_exp
 $stmt->execute(['part-time']);
 $users = $stmt->fetchAll();
 
-// シフトデータ取得
-$stmt = $pdo->prepare('
-    SELECT * FROM shifts_scheduled 
-    WHERE shift_date BETWEEN ? AND ?
-    ORDER BY shift_date, start_time
-');
-$stmt->execute([$start_date, $end_date]);
-$shifts = $stmt->fetchAll();
+// 勤務実績データ取得（予定と実績のマージ）
+$merged_records = get_merged_work_records($pdo, $start_date, $end_date);
 
 // 集計処理
 $user_stats = [];
@@ -57,16 +51,21 @@ foreach($users as $u) {
     ];
 }
 
-foreach($shifts as $s) {
-    if (!isset($user_stats[$s['user_id']])) continue;
-    
-    $user_stats[$s['user_id']]['days_worked']++;
-    
-    // 共通関数で時間計算
-    $times = calculate_shift_minutes($s['shift_date'], $s['start_time'], $s['end_time']);
-    
-    $user_stats[$s['user_id']]['night_minutes'] += $times['night_minutes'];
-    $user_stats[$s['user_id']]['normal_minutes'] += $times['normal_minutes'];
+foreach ($merged_records as $uid => $dates) {
+    if (!isset($user_stats[$uid])) continue;
+
+    foreach ($dates as $date => $record) {
+        // 勤務時間がない（欠勤など）場合はスキップ
+        if (empty($record['start']) || empty($record['end'])) continue;
+
+        $user_stats[$uid]['days_worked']++;
+
+        // 共通関数で時間計算
+        $times = calculate_shift_minutes($date, $record['start'], $record['end']);
+
+        $user_stats[$uid]['night_minutes'] += $times['night_minutes'];
+        $user_stats[$uid]['normal_minutes'] += $times['normal_minutes'];
+    }
 }
 
 // ビューの読み込み
