@@ -86,3 +86,87 @@ function generate_csrf_token() {
 function validate_csrf_token($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
+/**
+ * 指定期間の勤務実績データ（予定と実績をマージしたもの）を取得する
+ * @param PDO $pdo
+ * @param string $start_date
+ * @param string $end_date
+ * @param int|null $target_user_id 特定ユーザーのみ取得する場合に指定
+ * @return array [user_id => [date => record]]
+ */
+function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id = null) {
+    // 1. シフト予定の取得
+    $sql_sched = "SELECT * FROM shifts_scheduled WHERE shift_date BETWEEN ? AND ?";
+    $params_sched = [$start_date, $end_date];
+    if ($target_user_id) {
+        $sql_sched .= " AND user_id = ?";
+        $params_sched[] = $target_user_id;
+    }
+    $stmt = $pdo->prepare($sql_sched);
+    $stmt->execute($params_sched);
+    
+    $merged_data = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $uid = $row['user_id'];
+        $date = $row['shift_date'];
+        if (!isset($merged_data[$uid])) $merged_data[$uid] = [];
+        $merged_data[$uid][$date] = [
+            'type' => 'schedule',
+            'start' => $row['start_time'],
+            'end' => $row['end_time'],
+            'schedule_id' => $row['schedule_id'],
+            'status' => 'scheduled' // 仮
+        ];
+    }
+
+    // 2. 勤怠実績の取得
+    $sql_att = "SELECT * FROM attendance_records WHERE date BETWEEN ? AND ?";
+    $params_att = [$start_date, $end_date];
+    if ($target_user_id) {
+        $sql_att .= " AND user_id = ?";
+        $params_att[] = $target_user_id;
+    }
+    $stmt = $pdo->prepare($sql_att);
+    $stmt->execute($params_att);
+    
+    foreach ($stmt->fetchAll() as $row) {
+        $uid = $row['user_id'];
+        $date = $row['date'];
+        
+        // 実績があれば上書き、または新規追加
+        // status が absent (欠勤) の場合は、時間は0にするがレコードは残す
+        
+        $start = $row['clock_in_time'] ? date('H:i:s', strtotime($row['clock_in_time'])) : null;
+        $end = $row['clock_out_time'] ? date('H:i:s', strtotime($row['clock_out_time'])) : null;
+        
+        if ($row['status'] === 'absent') {
+            $start = null;
+            $end = null;
+        }
+
+        if (!isset($merged_data[$uid])) $merged_data[$uid] = [];
+        
+        $merged_data[$uid][$date] = [
+            'type' => 'attendance',
+            'start' => $start,
+            'end' => $end,
+            'attendance_id' => $row['attendance_id'],
+            'status' => $row['status'],
+            'is_approved' => $row['is_approved'],
+            'notes' => $row['notes']
+        ];
+    }
+    
+    return $merged_data;
+}
+
+/**
+ * 日付から日本語の曜日を取得する
+ * @param string $date Y-m-d
+ * @return string (月), (火) etc.
+ */
+function get_day_of_week_ja($date) {
+    $week = ['日', '月', '火', '水', '木', '金', '土'];
+    $w = (int)date('w', strtotime($date));
+    return '(' . $week[$w] . ')';
+}
