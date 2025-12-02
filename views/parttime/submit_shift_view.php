@@ -9,8 +9,15 @@ render_header('希望シフト提出'); ?>
 <div class="row">
   <div class="col-md-8">
     <h2>希望シフト提出</h2>
+    
+    <?php if(!empty($deadline_msg)): ?>
+        <div class="alert alert-info"><?php echo htmlspecialchars($deadline_msg); ?></div>
+    <?php endif; ?>
+
     <?php if(!empty($error)): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
     <?php if(!empty($success)): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
+    
+    <?php if (empty($is_past_deadline) || !$is_past_deadline): ?>
     <form method="post">
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
       <div class="mb-3">
@@ -27,6 +34,7 @@ render_header('希望シフト提出'); ?>
       </div>
       <button class="btn btn-primary" type="submit">提出</button>
     </form>
+    <?php endif; ?>
   </div>
 </div>
 <?php render_footer(); ?>
