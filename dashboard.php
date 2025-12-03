@@ -34,6 +34,11 @@ if (!empty($_SESSION['user_type']) && $_SESSION['user_type'] === 'owner') {
 }
 $rows = $stmt->fetchAll();
 
+// 定休日の取得
+$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?");
+$stmt->execute([$startOfMonth, $endOfMonth]);
+$holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
 // 日付ごとの配列に整理
 $shifts_by_date = [];
 foreach ($rows as $r) {

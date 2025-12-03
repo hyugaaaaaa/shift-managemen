@@ -41,12 +41,21 @@
           for ($c = 0; $c < 7; $c++) {
               $idx = $r * 7 + $c;
               $date = $cells[$idx];
-              echo '<td class="calendar-cell">';
+              
+              $is_holiday = ($date !== null && in_array($date, $holidays));
+              $bg_class = $is_holiday ? 'bg-light text-muted' : '';
+              
+              echo '<td class="calendar-cell ' . $bg_class . '">';
               if ($date === null) {
                   echo '&nbsp;';
               } else {
                   $dayNum = intval(substr($date,8,2));
                   echo '<div class="fw-bold">'.$dayNum.'</div>';
+                  
+                  if ($is_holiday) {
+                      echo '<div class="badge bg-secondary mb-1">定休日</div>';
+                  }
+                  
                   if (!empty($shifts_by_date[$date])) {
                       echo '<ul class="list-unstyled small mb-0">';
                           foreach ($shifts_by_date[$date] as $s) {

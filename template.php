@@ -51,6 +51,7 @@ function render_header($title = 'シフト管理'){
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/monthly_hours.php">月間時間</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/attendance_approval.php">勤怠承認</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/system_settings.php">システム設定</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/holidays.php">定休日設定</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/export_data.php">データ出力</a></li>
           <?php else: ?>
             <!-- アルバイト用メニュー -->

@@ -105,17 +105,19 @@ function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id =
     $stmt = $pdo->prepare($sql_sched);
     $stmt->execute($params_sched);
     
-    $merged_data = [];
+    $schedules = [];
     foreach ($stmt->fetchAll() as $row) {
         $uid = $row['user_id'];
         $date = $row['shift_date'];
-        if (!isset($merged_data[$uid])) $merged_data[$uid] = [];
-        $merged_data[$uid][$date] = [
+        if (!isset($schedules[$uid])) $schedules[$uid] = [];
+        if (!isset($schedules[$uid][$date])) $schedules[$uid][$date] = [];
+        
+        $schedules[$uid][$date][] = [
             'type' => 'schedule',
             'start' => $row['start_time'],
             'end' => $row['end_time'],
             'schedule_id' => $row['schedule_id'],
-            'status' => 'scheduled' // 仮
+            'status' => 'scheduled'
         ];
     }
 
@@ -129,12 +131,10 @@ function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id =
     $stmt = $pdo->prepare($sql_att);
     $stmt->execute($params_att);
     
+    $attendances = [];
     foreach ($stmt->fetchAll() as $row) {
         $uid = $row['user_id'];
         $date = $row['date'];
-        
-        // 実績があれば上書き、または新規追加
-        // status が absent (欠勤) の場合は、時間は0にするがレコードは残す
         
         $start = $row['clock_in_time'] ? date('H:i:s', strtotime($row['clock_in_time'])) : null;
         $end = $row['clock_out_time'] ? date('H:i:s', strtotime($row['clock_out_time'])) : null;
@@ -144,9 +144,10 @@ function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id =
             $end = null;
         }
 
-        if (!isset($merged_data[$uid])) $merged_data[$uid] = [];
+        if (!isset($attendances[$uid])) $attendances[$uid] = [];
+        if (!isset($attendances[$uid][$date])) $attendances[$uid][$date] = [];
         
-        $merged_data[$uid][$date] = [
+        $attendances[$uid][$date][] = [
             'type' => 'attendance',
             'start' => $start,
             'end' => $end,
@@ -155,6 +156,35 @@ function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id =
             'is_approved' => $row['is_approved'],
             'notes' => $row['notes']
         ];
+    }
+    
+    // 3. マージ処理
+    // 実績がある日は実績のみ、なければ予定を採用
+    $merged_data = [];
+    
+    // まず予定データをベースにするが、実績がある日付は後で上書きするために一時保持
+    // ユーザーIDリストを作成（予定または実績があるユーザー）
+    $all_uids = array_unique(array_merge(array_keys($schedules), array_keys($attendances)));
+    
+    foreach ($all_uids as $uid) {
+        $merged_data[$uid] = [];
+        
+        // 日付範囲ループ（必要なら）または存在する日付のみ処理
+        // ここでは存在する日付のみ処理する
+        $dates = array_unique(array_merge(
+            isset($schedules[$uid]) ? array_keys($schedules[$uid]) : [],
+            isset($attendances[$uid]) ? array_keys($attendances[$uid]) : []
+        ));
+        
+        foreach ($dates as $date) {
+            if (isset($attendances[$uid][$date])) {
+                // 実績があればそれを採用（複数件ありうる）
+                $merged_data[$uid][$date] = $attendances[$uid][$date];
+            } elseif (isset($schedules[$uid][$date])) {
+                // 実績がなく予定があればそれを採用（複数件ありうる）
+                $merged_data[$uid][$date] = $schedules[$uid][$date];
+            }
+        }
     }
     
     return $merged_data;
