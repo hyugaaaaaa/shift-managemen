@@ -17,11 +17,11 @@ $msg = '';
 
 // 編集の場合、既存データを取得
 if ($id) {
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ? AND is_deleted = 0');
     $stmt->execute([$id]);
     $user = $stmt->fetch();
     if (!$user) {
-        die('User not found');
+        die('User not found or deleted');
     }
 }
 

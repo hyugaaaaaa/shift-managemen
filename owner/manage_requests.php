@@ -15,7 +15,11 @@ $pdo = getPDO();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $request_id = intval($_POST['request_id'] ?? 0);
-    if ($request_id > 0 && in_array($action, ['approve','reject'], true)) {
+
+    // CSRFチェック
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'セッションが無効です。もう一度お試しください。';
+    } elseif ($request_id > 0 && in_array($action, ['approve','reject'], true)) {
         try {
             $pdo->beginTransaction();
             $stmt = $pdo->prepare('SELECT user_id, shift_date, start_time, end_time FROM shifts_requested WHERE request_id = ? FOR UPDATE');
@@ -26,6 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($action === 'approve') {
+                // 定休日チェック
+                $stmt_holiday = $pdo->prepare("SELECT COUNT(*) FROM holidays WHERE holiday_date = ?");
+                $stmt_holiday->execute([$req['shift_date']]);
+                if ($stmt_holiday->fetchColumn() > 0) {
+                    throw new Exception('指定された日付は定休日です。承認できません。');
+                }
+
                 // shifts_scheduled に追加
                 $ins = $pdo->prepare('INSERT INTO shifts_scheduled (user_id, shift_date, start_time, end_time) VALUES (?, ?, ?, ?)');
                 $ins->execute([$req['user_id'], $req['shift_date'], $req['start_time'], $req['end_time']]);
@@ -125,10 +136,12 @@ render_header('希望シフト一覧（オーナー）');
             <td>
               <?php if($r['request_status'] === 'pending'): ?>
                 <form method="post" style="display:inline">
+                  <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
                   <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
                   <button name="action" value="approve" class="btn btn-sm btn-success" onclick="return confirm('この希望を承認して確定シフトに追加しますか？');">承認</button>
                 </form>
                 <form method="post" style="display:inline">
+                  <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
                   <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
                   <button name="action" value="reject" class="btn btn-sm btn-danger" onclick="return confirm('この希望を却下しますか？');">却下</button>
                 </form>
