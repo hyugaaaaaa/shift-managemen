@@ -12,6 +12,9 @@ if (empty($_SESSION['user_id'])) {
 // 表示対象の年月を取得（デフォルトは現在年月）
 $year = intval($_GET['y'] ?? date('Y'));
 $month = intval($_GET['m'] ?? date('n'));
+
+
+
 if ($month < 1) { $month = 1; }
 if ($month > 12) { $month = 12; }
 
@@ -20,6 +23,10 @@ $startOfMonth = date('Y-m-01', strtotime("{$year}-{$month}-01"));
 $endOfMonth = date('Y-m-t', strtotime($startOfMonth));
 
 $pdo = getPDO();
+
+// 最新のお知らせ取得（3件）
+$stmt_news = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 3");
+$announcements = $stmt_news->fetchAll();
 // シフトデータの取得
 if (!empty($_SESSION['user_type']) && $_SESSION['user_type'] === 'owner') {
     // オーナーの場合: 全従業員のシフトを取得

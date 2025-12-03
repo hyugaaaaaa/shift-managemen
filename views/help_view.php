@@ -1,17 +1,3 @@
-<?php render_header('ヘルプ - シフト管理システム'); ?>
-
-<div class="container mt-4">
-    <h1 class="mb-4"><i class="bi bi-question-circle-fill text-primary"></i> ヘルプ</h1>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">目次</h5>
-                </div>
-                <div class="card-body">
-                    <ul>
-                        <li><a href="#common">共通機能</a></li>
                         <li><a href="#parttime">アルバイトの方へ</a></li>
                         <li><a href="#owner">オーナー・管理者の方へ</a></li>
                     </ul>
@@ -94,6 +80,20 @@
                 </p>
             </div>
         </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-line"></i> LINE通知連携</h5>
+                <p class="card-text">
+                    LINE連携を行うと、お店からのお知らせをLINEで受け取ることができます。
+                    <ol>
+                        <li>お店のLINE公式アカウントを友だち追加します。</li>
+                        <li>LINEアプリの設定画面などで、あなたの「LINE User ID」を確認します（※IDの確認方法はオーナーにお問い合わせください）。</li>
+                        <li>本システムの「設定」メニューを開き、「LINE User ID」欄にIDを入力して保存します。</li>
+                    </ol>
+                </p>
+            </div>
+        </div>
     </section>
 
     <section id="owner" class="mb-5">
@@ -123,43 +123,6 @@
             <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-calendar3"></i> 月間時間</h5>
                 <p class="card-text">
-                    月ごとの従業員の総労働時間を確認できます。<br>
-                    シフト作成時の調整や、労働時間の管理に利用します。
-                </p>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-check-circle"></i> 勤怠承認</h5>
-                <p class="card-text">
-                    従業員からの勤怠修正申請を承認または却下します。<br>
-                    未承認の申請がある場合、ここに表示されます。
-                </p>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-gear"></i> システム設定</h5>
-                <p class="card-text">
-                    以下の設定を変更できます。
-                    <ul>
-                        <li><strong>シフト提出締め切り日</strong>: アルバイトが翌月のシフトを提出できる期限日。</li>
-                        <li><strong>給与締め日</strong>: 給与計算の締め日（例: 31 = 末日）。</li>
-                        <li><strong>給与支払日</strong>: 給与の支払日。</li>
-                    </ul>
-                </p>
-            </div>
-        </div>
-
-        <div class="card shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-calendar-x"></i> 定休日設定</h5>
-                <p class="card-text">
-                    お店の定休日を設定します。<br>
-                    設定された日は、アルバイトがシフト希望を提出できなくなります。<br>
-                    ダッシュボードのカレンダーにも「定休日」として表示されます。
                 </p>
             </div>
         </div>

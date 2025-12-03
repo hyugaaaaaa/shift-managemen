@@ -1,13 +1,38 @@
 <?php render_header('シフトカレンダー'); ?>
-<div class="row">
-  <div class="col-md-12">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="h4"><?php echo htmlspecialchars("{$year}年{$month}月のシフト"); ?></h1>
-      <div>
-        <a class="btn btn-sm btn-outline-primary me-2" href="<?php echo BASE_PATH; ?>/dashboard.php?y=<?php echo htmlspecialchars($py); ?>&m=<?php echo htmlspecialchars($pm); ?>">&lt; 前月</a>
-        <a class="btn btn-sm btn-outline-primary" href="<?php echo BASE_PATH; ?>/dashboard.php?y=<?php echo htmlspecialchars($ny); ?>&m=<?php echo htmlspecialchars($nm); ?>">次月 &gt;</a>
-      </div>
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">ダッシュボード</h1>
     </div>
+
+    <!-- お知らせセクション -->
+    <?php if (!empty($announcements)): ?>
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <i class="bi bi-megaphone-fill me-2"></i>お知らせ
+        </div>
+        <div class="list-group list-group-flush">
+            <?php foreach ($announcements as $news): ?>
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1 fw-bold"><?php echo h($news['title']); ?></h6>
+                    <small class="text-muted"><?php echo date('Y/m/d H:i', strtotime($news['created_at'])); ?></small>
+                </div>
+                <p class="mb-1 small text-muted" style="white-space: pre-wrap;"><?php echo h($news['content']); ?></p>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="h4"><?php echo htmlspecialchars("{$year}年{$month}月のシフト"); ?></h1>
+          <div>
+            <a class="btn btn-sm btn-outline-primary me-2" href="<?php echo BASE_PATH; ?>/dashboard.php?y=<?php echo htmlspecialchars($py); ?>&m=<?php echo htmlspecialchars($pm); ?>">&lt; 前月</a>
+            <a class="btn btn-sm btn-outline-primary" href="<?php echo BASE_PATH; ?>/dashboard.php?y=<?php echo htmlspecialchars($ny); ?>&m=<?php echo htmlspecialchars($nm); ?>">次月 &gt;</a>
+          </div>
+        </div>
 
     <table class="table table-bordered calendar-table">
       <thead class="table-light">
@@ -90,6 +115,10 @@
       </tbody>
     </table>
   </div>
+</div>
+
+  </div>
+</div>
 </div>
 
 <?php render_footer(); ?>
