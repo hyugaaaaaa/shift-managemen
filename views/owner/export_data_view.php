@@ -7,6 +7,10 @@
         <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
+    <?php if(!empty($msg)): ?>
+        <div class="alert alert-success"><?php echo htmlspecialchars($msg); ?></div>
+    <?php endif; ?>
+
     <div class="row">
         <div class="col-md-6">
             <div class="card shadow-sm mb-4">
@@ -14,7 +18,7 @@
                     <h5 class="card-title mb-0">給与明細データ (CSV)</h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text">指定した月の全従業員の給与計算結果をCSV形式でダウンロードします。</p>
+                    <p class="card-text">指定した月の全従業員の給与計算結果をCSV形式でC:\shift_managementに保存します。</p>
                     <form method="post" action="export_data.php">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
                         <input type="hidden" name="export_type" value="payslip">
@@ -24,7 +28,7 @@
                             <input type="month" class="form-control" id="month_payslip" name="month" value="<?php echo date('Y-m'); ?>" required>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-download"></i> ダウンロード</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> サーバーに保存</button>
                     </form>
                 </div>
             </div>
@@ -36,7 +40,7 @@
                     <h5 class="card-title mb-0">シフト表データ (CSV)</h5>
                 </div>
                 <div class="card-body">
-                    <p class="card-text">指定した月の確定シフトデータをCSV形式でダウンロードします。</p>
+                    <p class="card-text">指定した月の確定シフトデータをCSV形式でC:\shift_managementに保存します。</p>
                     <form method="post" action="export_data.php">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
                         <input type="hidden" name="export_type" value="shifts">
@@ -46,7 +50,7 @@
                             <input type="month" class="form-control" id="month_shifts" name="month" value="<?php echo date('Y-m'); ?>" required>
                         </div>
                         
-                        <button type="submit" class="btn btn-success"><i class="bi bi-download"></i> ダウンロード</button>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> サーバーに保存</button>
                     </form>
                 </div>
             </div>

@@ -11,7 +11,13 @@ render_header('希望シフト提出'); ?>
     <h2>希望シフト提出</h2>
     
     <?php if(!empty($deadline_msg)): ?>
-        <div class="alert alert-info"><?php echo htmlspecialchars($deadline_msg); ?></div>
+        <div class="alert alert-info">
+            <strong><?php echo htmlspecialchars($target_year_month); ?>分</strong>のシフト提出を受け付けています。<br>
+            <?php echo htmlspecialchars($deadline_msg); ?>
+            <?php if(!empty($holiday_msg)): ?>
+                <br><strong class="text-danger"><?php echo htmlspecialchars($holiday_msg); ?></strong>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 
     <?php if(!empty($error)): ?><div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
@@ -22,7 +28,7 @@ render_header('希望シフト提出'); ?>
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
       <div class="mb-3">
         <label class="form-label">日付</label>
-        <input type="date" name="shift_date" class="form-control" value="<?php echo htmlspecialchars($shift_date); ?>" required>
+        <input type="date" name="shift_date" class="form-control" value="<?php echo htmlspecialchars($shift_date); ?>" min="<?php echo htmlspecialchars($min_date); ?>" max="<?php echo htmlspecialchars($max_date); ?>" required>
       </div>
       <div class="mb-3">
         <label class="form-label">開始時刻</label>

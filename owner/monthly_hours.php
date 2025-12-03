@@ -54,17 +54,35 @@ foreach($users as $u) {
 foreach ($merged_records as $uid => $dates) {
     if (!isset($user_stats[$uid])) continue;
 
-    foreach ($dates as $date => $record) {
-        // 勤務時間がない（欠勤など）場合はスキップ
-        if (empty($record['start']) || empty($record['end'])) continue;
+    foreach ($dates as $date => $date_records) {
+        // $date_records はその日のシフト/実績のリスト（配列）
+        foreach ($date_records as $record) {
+            // 勤務時間がない（欠勤など）場合はスキップ
+            if (empty($record['start']) || empty($record['end'])) continue;
 
-        $user_stats[$uid]['days_worked']++;
-
-        // 共通関数で時間計算
-        $times = calculate_shift_minutes($date, $record['start'], $record['end']);
-
-        $user_stats[$uid]['night_minutes'] += $times['night_minutes'];
-        $user_stats[$uid]['normal_minutes'] += $times['normal_minutes'];
+            // 日数は「勤務した日」としてカウントしたい場合、1日1回だけカウントすべきだが、
+            // ここでは簡易的に「シフト回数」ではなく「出勤日数」としたい場合、
+            // ループの外で日付ごとにカウントする必要がある。
+            // しかし既存ロジックは単純なインクリメントだったため、仕様を確認する必要がある。
+            // 一般的には「1日に2回シフトがあっても出勤日数は1日」とするのが自然。
+            // ここでは一旦、このループ内では時間を加算し、日数はループの外（日付単位）でカウントするように修正する。
+        }
+        
+        // その日に有効な勤務記録が1つでもあれば出勤日数を+1
+        $has_worked_today = false;
+        foreach ($date_records as $record) {
+            if (!empty($record['start']) && !empty($record['end'])) {
+                $has_worked_today = true;
+                // 時間計算
+                $times = calculate_shift_minutes($date, $record['start'], $record['end']);
+                $user_stats[$uid]['night_minutes'] += $times['night_minutes'];
+                $user_stats[$uid]['normal_minutes'] += $times['normal_minutes'];
+            }
+        }
+        
+        if ($has_worked_today) {
+            $user_stats[$uid]['days_worked']++;
+        }
     }
 }
 
