@@ -250,3 +250,45 @@ function send_line_push($pdo, $user_id, $message) {
     return $http_code === 200;
 }
 
+/**
+ * LINE Messaging APIでメッセージに返信する
+ * @param PDO $pdo
+ * @param string $reply_token Reply Token
+ * @param string $message 送信メッセージ
+ * @return bool
+ */
+function reply_line_message($pdo, $reply_token, $message) {
+    if (empty($reply_token)) return false;
+
+    // システム設定からアクセストークンを取得
+    $token = get_system_setting($pdo, 'line_channel_access_token', '');
+    if (empty($token)) return false;
+
+    $url = 'https://api.line.me/v2/bot/message/reply';
+    $data = [
+        'replyToken' => $reply_token,
+        'messages' => [
+            [
+                'type' => 'text',
+                'text' => $message
+            ]
+        ]
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $token
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $result = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return $http_code === 200;
+}
+

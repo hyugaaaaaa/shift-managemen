@@ -62,6 +62,15 @@
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <label for="line_channel_secret" class="form-label">チャンネルシークレット</label>
+                    <input type="text" class="form-control" id="line_channel_secret" name="line_channel_secret" value="<?php echo htmlspecialchars($current_line_secret); ?>">
+                    <div class="form-text">
+                        LINE Developersコンソールで確認できる「チャンネルシークレット」を入力してください。<br>
+                        Webhookの署名検証に使用します。
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">保存</button>
             </form>
         </div>

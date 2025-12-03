@@ -3,9 +3,14 @@
 <div class="page-container">
     <div class="page-header">
         <h2 class="page-title">月間時間集計</h2>
-        <form method="get" class="filter-form">
-            <input type="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>">
-            <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">表示</button>
+        <form method="get" class="d-flex align-items-center gap-2">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-month"></i></span>
+                <input type="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>" class="form-control border-start-0 ps-0" style="max-width: 200px;">
+            </div>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-search me-1"></i> 表示
+            </button>
         </form>
     </div>
 
@@ -25,7 +30,7 @@
             <table class="table-custom">
                 <thead>
                     <tr>
-                        <th>名前</th>
+                        <th class="ps-3">名前</th>
                         <th class="text-end">時給</th>
                         <th class="text-center">出勤日数</th>
                         <th class="text-end">通常時間</th>
@@ -51,7 +56,7 @@
                         $total_pay = $pay_normal + $pay_night + $pay_transport;
                     ?>
                     <tr>
-                        <td>
+                        <td class="ps-3">
                             <div class="user-name"><?php echo htmlspecialchars($u['username']); ?></div>
                         </td>
                         <td class="text-end amount">¥<?php echo number_format($rate); ?></td>

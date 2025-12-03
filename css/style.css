@@ -288,19 +288,19 @@ body {
 .shift-normal {
     background-color: var(--primary-light);
     color: var(--primary-color);
-    border-left: 3px solid var(--primary-color);
+    border-left: 3px solid var(--primary-color); padding-left: 8px;
 }
 
 .shift-start {
     background-color: #e8f5e9;
     color: var(--success-color);
-    border-left: 3px solid var(--success-color);
+    border-left: 3px solid var(--success-color); padding-left: 8px;
 }
 
 .shift-end {
     background-color: #ffebee;
     color: var(--danger-color);
-    border-left: 3px solid var(--danger-color);
+    border-left: 3px solid var(--danger-color); padding-left: 8px;
 }
 
 /* Badges */
@@ -416,4 +416,18 @@ body {
         border: none;
         padding: 0;
     }
+}
+
+/* Payslip Action Buttons */
+.action-buttons {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+}
+/* Payslip Item Spacing */
+.payslip-body .table-custom td {
+    padding-bottom: 2rem;
 }
