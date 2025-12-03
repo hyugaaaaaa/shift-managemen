@@ -32,6 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['shift_submission_deadline_day', $deadline_day]);
             $stmt->execute(['closing_day', $closing_day]);
             $stmt->execute(['payment_day', $payment_day]);
+            
+            // LINE Messaging API設定
+            $line_token = trim($_POST['line_channel_access_token'] ?? '');
+            $stmt->execute(['line_channel_access_token', $line_token]);
+
+            $line_secret = trim($_POST['line_channel_secret'] ?? '');
+            $stmt->execute(['line_channel_secret', $line_secret]);
+            
             $msg = '設定を保存しました。';
         }
     }
@@ -41,5 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $current_deadline = get_system_setting($pdo, 'shift_submission_deadline_day', 25);
 $current_closing_day = get_system_setting($pdo, 'closing_day', 31);
 $current_payment_day = get_system_setting($pdo, 'payment_day', 25);
+$current_line_token = get_system_setting($pdo, 'line_channel_access_token', '');
+$current_line_secret = get_system_setting($pdo, 'line_channel_secret', '');
 
 require_once __DIR__ . '/../views/owner/system_settings_view.php';

@@ -1,4 +1,0 @@
-[PASS] Syntax check for owner/user_edit.php: OK
-[PASS] Syntax check for owner/manage_requests.php: OK
-[PASS] Syntax check for functions.php: OK
-ALL TESTS COMPLETED

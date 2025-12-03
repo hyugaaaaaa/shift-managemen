@@ -40,24 +40,26 @@ function render_header($title = 'シフト管理'){
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
   <div class="container-fluid">
     <a class="navbar-brand" href="<?php echo !empty($_SESSION['user_id']) ? BASE_PATH . '/dashboard.php' : BASE_PATH . '/index.php'; ?>">シフト管理</a>
-    <div class="collapse navbar-collapse">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <?php if(!empty($_SESSION['user_id'])): ?>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/dashboard.php">ダッシュボード</a></li>
           <?php if($_SESSION['user_type'] === 'owner'): ?>
             <!-- オーナー用メニュー -->
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php">希望一覧</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php">シフト承認</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/users.php">従業員管理</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/monthly_hours.php">月間時間</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/attendance_approval.php">勤怠承認</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/system_settings.php">システム設定</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/monthly_hours.php">給与集計</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/holidays.php">定休日設定</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/announcements.php">お知らせ管理</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/system_settings.php">システム設定</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/export_data.php">データ出力</a></li>
           <?php else: ?>
             <!-- アルバイト用メニュー -->
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/submit_shift.php">希望提出</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/submit_shift.php">シフト希望提出</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/view_schedule.php">確定シフト</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/attendance_list.php">勤怠確認・修正</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/payslip_list.php">給与明細</a></li>
           <?php endif; ?>
         <?php endif; ?>
@@ -65,7 +67,7 @@ function render_header($title = 'シフト管理'){
       <ul class="navbar-nav">
         <?php if(!empty($_SESSION['user_id'])): ?>
           <li class="nav-item"><span class="nav-link"><?php echo htmlspecialchars($_SESSION['username']); ?></span></li>
-          <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/change_password.php">パスワード変更</a></li>
+          <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/profile.php">設定</a></li>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/help.php">ヘルプ</a></li>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/logout.php">ログアウト</a></li>
         <?php else: ?>

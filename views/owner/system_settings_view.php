@@ -51,6 +51,26 @@
                     <div class="form-text">給与の支払日を設定します。</div>
                 </div>
 
+                <hr class="my-4">
+                <h5 class="mb-3">LINE Messaging API設定</h5>
+                <div class="mb-3">
+                    <label for="line_channel_access_token" class="form-label">チャンネルアクセストークン (長期)</label>
+                    <textarea class="form-control" id="line_channel_access_token" name="line_channel_access_token" rows="3"><?php echo htmlspecialchars($current_line_token); ?></textarea>
+                    <div class="form-text">
+                        LINE Developersコンソールで発行した「チャンネルアクセストークン（長期）」を入力してください。<br>
+                        これが設定されていないと、お知らせのLINE通知は送信されません。
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="line_channel_secret" class="form-label">チャンネルシークレット</label>
+                    <input type="text" class="form-control" id="line_channel_secret" name="line_channel_secret" value="<?php echo htmlspecialchars($current_line_secret); ?>">
+                    <div class="form-text">
+                        LINE Developersコンソールで確認できる「チャンネルシークレット」を入力してください。<br>
+                        Webhookの署名検証に使用します。
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">保存</button>
             </form>
         </div>

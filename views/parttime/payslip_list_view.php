@@ -36,7 +36,7 @@
             <?php foreach ($months as $m): ?>
                 <a href="payslip_view.php?month=<?php echo $m; ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" target="_blank">
                     <?php echo date('Y年n月分', strtotime($m . '-01')); ?>
-                    <span class="badge bg-secondary rounded-pill">明細を表示</span>
+                    <span class="badge bg-primary rounded-pill">明細を表示</span>
                 </a>
             <?php endforeach; ?>
         </div>

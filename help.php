@@ -9,5 +9,8 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
+// ヘッダーの出力
+render_header('ヘルプ');
+
 // ビューの読み込み
 require_once __DIR__ . '/views/help_view.php';
