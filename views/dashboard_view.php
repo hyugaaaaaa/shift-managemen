@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <table class="table table-bordered">
+    <table class="table table-bordered calendar-table">
       <thead class="table-light">
         <tr>
           <th>月</th>

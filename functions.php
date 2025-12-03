@@ -200,3 +200,11 @@ function get_day_of_week_ja($date) {
     $w = (int)date('w', strtotime($date));
     return '(' . $week[$w] . ')';
 }
+/**
+ * HTMLエスケープを行うヘルパー関数
+ * @param string $str
+ * @return string
+ */
+function h($str) {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}

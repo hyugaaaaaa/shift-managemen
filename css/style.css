@@ -260,26 +260,6 @@ body {
     background-color: var(--bg-color) !important;
 }
 
-.fw-bold {
-    font-weight: 700 !important;
-}
-
-/* Dashboard Calendar Specifics */
-.calendar-cell {
-    background: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 0.75rem;
-    min-height: 120px;
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-.calendar-cell:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 15px rgba(78, 115, 223, 0.1);
-    z-index: 5;
-}
 
 .calendar-cell-no-hover {
     /* For cells that shouldn't have hover effects if any */
