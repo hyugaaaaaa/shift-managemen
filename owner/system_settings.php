@@ -19,19 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'セッションが無効です。もう一度お試しください。';
     } else {
         $deadline_day = (int)($_POST['shift_submission_deadline_day'] ?? 25);
-        $salary_closing_day = (int)($_POST['salary_closing_day'] ?? 31);
-        $salary_payment_day = (int)($_POST['salary_payment_day'] ?? 25);
+        $closing_day = (int)($_POST['closing_day'] ?? 31);
+        $payment_day = (int)($_POST['payment_day'] ?? 25);
 
         if ($deadline_day < 1 || $deadline_day > 31 || 
-            $salary_closing_day < 1 || $salary_closing_day > 31 || 
-            $salary_payment_day < 1 || $salary_payment_day > 31) {
+            $closing_day < 1 || $closing_day > 31 || 
+            $payment_day < 1 || $payment_day > 31) {
             $error = '日付は1から31の間で指定してください。';
         } else {
             // 設定保存 (UPSERT)
             $stmt = $pdo->prepare("INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
             $stmt->execute(['shift_submission_deadline_day', $deadline_day]);
-            $stmt->execute(['salary_closing_day', $salary_closing_day]);
-            $stmt->execute(['salary_payment_day', $salary_payment_day]);
+            $stmt->execute(['closing_day', $closing_day]);
+            $stmt->execute(['payment_day', $payment_day]);
             $msg = '設定を保存しました。';
         }
     }
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // 現在の設定値取得
 $current_deadline = get_system_setting($pdo, 'shift_submission_deadline_day', 25);
-$current_closing_day = get_system_setting($pdo, 'salary_closing_day', 31);
-$current_payment_day = get_system_setting($pdo, 'salary_payment_day', 25);
+$current_closing_day = get_system_setting($pdo, 'closing_day', 31);
+$current_payment_day = get_system_setting($pdo, 'payment_day', 25);
 
 require_once __DIR__ . '/../views/owner/system_settings_view.php';

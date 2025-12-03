@@ -40,6 +40,7 @@
                     <ul>
                         <li><span class="badge bg-primary">出: HH:MM</span> 出勤予定時刻</li>
                         <li><span class="badge bg-danger">退: HH:MM</span> 退勤予定時刻</li>
+                        <li><span class="badge bg-secondary">定休日</span> お店の定休日</li>
                     </ul>
                 </p>
             </div>
@@ -53,9 +54,13 @@
             <div class="card-body">
                 <h5 class="card-title"><i class="bi bi-calendar-plus"></i> 希望提出</h5>
                 <p class="card-text">
-                    来月のシフト希望を提出します。<br>
+                    来月（翌月）のシフト希望を提出します。<br>
                     カレンダーの日付をクリックし、希望する時間帯を入力して「登録」ボタンを押してください。<br>
-                    締め切りを過ぎると提出できなくなる場合がありますのでご注意ください。
+                    <ul>
+                        <li>締め切り日を過ぎると提出できません。</li>
+                        <li>定休日に設定されている日は選択できません。</li>
+                        <li>既に提出済みのシフトと同じ内容（日時）では重複して提出できません。</li>
+                    </ul>
                 </p>
             </div>
         </div>
@@ -109,7 +114,7 @@
                 <h5 class="card-title"><i class="bi bi-people"></i> 従業員管理</h5>
                 <p class="card-text">
                     従業員アカウントの作成、編集、削除が行えます。<br>
-                    新しいスタッフが入った場合や、退職時の処理はここで行います。
+                    削除された従業員はログインできなくなりますが、過去の勤怠データなどは保持されます（論理削除）。
                 </p>
             </div>
         </div>
@@ -130,6 +135,41 @@
                 <p class="card-text">
                     従業員からの勤怠修正申請を承認または却下します。<br>
                     未承認の申請がある場合、ここに表示されます。
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-gear"></i> システム設定</h5>
+                <p class="card-text">
+                    以下の設定を変更できます。
+                    <ul>
+                        <li><strong>シフト提出締め切り日</strong>: アルバイトが翌月のシフトを提出できる期限日。</li>
+                        <li><strong>給与締め日</strong>: 給与計算の締め日（例: 31 = 末日）。</li>
+                        <li><strong>給与支払日</strong>: 給与の支払日。</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-calendar-x"></i> 定休日設定</h5>
+                <p class="card-text">
+                    お店の定休日を設定します。<br>
+                    設定された日は、アルバイトがシフト希望を提出できなくなります。<br>
+                    ダッシュボードのカレンダーにも「定休日」として表示されます。
+                </p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-file-earmark-arrow-down"></i> データ出力</h5>
+                <p class="card-text">
+                    給与明細やシフト表をCSV形式で出力し、サーバー（C:\shift_management）に保存します。<br>
+                    保存されたファイルはエクセル等で開くことができます。
                 </p>
             </div>
         </div>

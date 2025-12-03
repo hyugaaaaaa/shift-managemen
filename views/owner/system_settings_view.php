@@ -32,20 +32,20 @@
                 <h5 class="mb-3">給与設定</h5>
 
                 <div class="mb-3">
-                    <label for="salary_closing_day" class="form-label">給与締め日</label>
+                    <label for="closing_day" class="form-label">給与締め日</label>
                     <div class="input-group">
                         <span class="input-group-text">毎月</span>
-                        <input type="number" class="form-control" id="salary_closing_day" name="salary_closing_day" value="<?php echo htmlspecialchars($current_closing_day); ?>" min="1" max="31" required>
+                        <input type="number" class="form-control" id="closing_day" name="closing_day" value="<?php echo htmlspecialchars($current_closing_day); ?>" min="1" max="31" required>
                         <span class="input-group-text">日</span>
                     </div>
                     <div class="form-text">給与計算の締め日を設定します（例: 31 = 末日締め）。</div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="salary_payment_day" class="form-label">給与支払日</label>
+                    <label for="payment_day" class="form-label">給与支払日</label>
                     <div class="input-group">
                         <span class="input-group-text">毎月</span>
-                        <input type="number" class="form-control" id="salary_payment_day" name="salary_payment_day" value="<?php echo htmlspecialchars($current_payment_day); ?>" min="1" max="31" required>
+                        <input type="number" class="form-control" id="payment_day" name="payment_day" value="<?php echo htmlspecialchars($current_payment_day); ?>" min="1" max="31" required>
                         <span class="input-group-text">日</span>
                     </div>
                     <div class="form-text">給与の支払日を設定します。</div>
