@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config.php';
-session_start();
+require_once __DIR__ . '/../config.php';
+// session_start(); // template.phpで開始するため削除
 require_once __DIR__ . '/../template.php';
 
 // オーナー専用ページ
@@ -135,15 +136,25 @@ render_header('希望シフト一覧（オーナー）');
             <td><?php echo htmlspecialchars($r['submitted_at']); ?></td>
             <td>
               <?php if($r['request_status'] === 'pending'): ?>
-                <form method="post" style="display:inline">
+                  <form method="post" action="manage_requests.php" style="display:inline" id="form-reject-<?php echo $r['request_id']; ?>">
                   <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
                   <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                  <button name="action" value="approve" class="btn btn-sm btn-success" onclick="return confirm('この希望を承認して確定シフトに追加しますか？');">承認</button>
+                  <input type="hidden" name="action" value="reject">
+                  <button type="button" class="btn btn-sm btn-danger" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#confirmModal" 
+                          data-action="reject" 
+                          data-request-id="<?php echo $r['request_id']; ?>">却下</button>
                 </form>
-                <form method="post" style="display:inline">
+                <form method="post" action="manage_requests.php" style="display:inline" id="form-approve-<?php echo $r['request_id']; ?>">
                   <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
                   <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                  <button name="action" value="reject" class="btn btn-sm btn-danger" onclick="return confirm('この希望を却下しますか？');">却下</button>
+                  <input type="hidden" name="action" value="approve">
+                  <button type="button" class="btn btn-sm btn-success" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#confirmModal" 
+                          data-action="approve" 
+                          data-request-id="<?php echo $r['request_id']; ?>">承認</button>
                 </form>
               <?php else: ?>
                 -
@@ -156,5 +167,60 @@ render_header('希望シフト一覧（オーナー）');
     <?php endif; ?>
   </div>
 </div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">確認</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">この操作を実行しますか？</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+        <button type="button" class="btn btn-primary" id="confirmBtn">実行</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var confirmModal = document.getElementById('confirmModal');
+    var confirmBtn = document.getElementById('confirmBtn');
+    var targetFormId = null;
+
+    confirmModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var action = button.getAttribute('data-action');
+        var requestId = button.getAttribute('data-request-id');
+        var modalTitle = confirmModal.querySelector('.modal-title');
+        var modalBody = confirmModal.querySelector('.modal-body p');
+
+        if (action === 'approve') {
+            modalTitle.textContent = '承認の確認';
+            modalBody.textContent = 'この希望シフトを承認して確定シフトに追加しますか？';
+            confirmBtn.className = 'btn btn-success';
+            confirmBtn.textContent = '承認する';
+            targetFormId = 'form-approve-' + requestId;
+        } else if (action === 'reject') {
+            modalTitle.textContent = '却下の確認';
+            modalBody.textContent = 'この希望シフトを却下しますか？';
+            confirmBtn.className = 'btn btn-danger';
+            confirmBtn.textContent = '却下する';
+            targetFormId = 'form-reject-' + requestId;
+        }
+    });
+
+    confirmBtn.addEventListener('click', function() {
+        if (targetFormId) {
+            document.getElementById(targetFormId).submit();
+        }
+    });
+});
+</script>
 
 <?php render_footer(); ?>

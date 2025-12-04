@@ -12,6 +12,7 @@
     --success-color: #1cc88a;
     --warning-color: #f6c23e;
     --danger-color: #e74a3b;
+    --secondary-color: #858796;
 
     --bg-color: #f8f9fc;
     /* Very light cool grey */
@@ -164,6 +165,7 @@ body {
 .btn-secondary {
     background-color: var(--secondary-color);
     border-color: var(--secondary-color);
+    color: #fff;
 }
 
 .btn-danger {
