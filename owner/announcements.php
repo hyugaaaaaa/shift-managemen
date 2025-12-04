@@ -35,24 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$title, $content]);
                     $msg = 'お知らせを作成しました。';
 
-                    // LINE通知送信
-                    // ID設定済みの全ユーザーを取得
-                    $stmt_users = $pdo->query("SELECT line_user_id FROM users WHERE line_user_id IS NOT NULL AND is_deleted = 0");
-                    $users = $stmt_users->fetchAll(PDO::FETCH_COLUMN);
-
-                    $notify_message = "【お知らせ】\n" . $title . "\n\n" . $content;
-                    $notify_count = 0;
-
-                    foreach ($users as $uid) {
-                        if (send_line_push($pdo, $uid, $notify_message)) {
-                            $notify_count++;
-                        }
-                    }
-                    
-                    if ($notify_count > 0) {
-                        $msg .= " ({$notify_count}人にLINE通知を送信しました)";
-                    }
-
                 } catch (Exception $e) {
                     $error = 'エラーが発生しました: ' . $e->getMessage();
                 }

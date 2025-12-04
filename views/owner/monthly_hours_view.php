@@ -8,8 +8,8 @@
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-month"></i></span>
                 <input type="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>" class="form-control border-start-0 ps-0" style="max-width: 200px;">
             </div>
-            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="bi bi-search me-1"></i> 表示
+            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" style="height: 47.17px; font-size: 20px; display: flex; align-items: center; justify-content: center; padding-top: 0; padding-bottom: 0;">
+                <i class="bi bi-search me-1"></i> 
             </button>
         </form>
     </div>

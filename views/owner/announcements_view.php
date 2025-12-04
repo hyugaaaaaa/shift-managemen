@@ -25,7 +25,6 @@
                     <div class="mb-3">
                         <label for="content" class="form-label">本文</label>
                         <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
-                        <div class="form-text">作成と同時に、LINE連携済みの全ユーザーに通知が送信されます。</div>
                     </div>
                     <button type="submit" class="btn btn-primary">作成して通知</button>
                 </form>

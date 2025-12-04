@@ -1,8 +1,0 @@
-[PASS] owner/announcements.php
-[PASS] views/owner/announcements_view.php
-[PASS] profile.php
-[PASS] views/profile_view.php
-[PASS] dashboard.php
-[PASS] views/dashboard_view.php
-[PASS] template.php
-[PASS] functions.php
