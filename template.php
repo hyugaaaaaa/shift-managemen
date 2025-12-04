@@ -52,10 +52,19 @@ function render_header($title = 'シフト管理'){
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php">シフト承認</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/users.php">従業員管理</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/monthly_hours.php">給与集計</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/holidays.php">定休日設定</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/announcements.php">お知らせ管理</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/system_settings.php">システム設定</a></li>
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/owner/export_data.php">データ出力</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                システム管理
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="<?php echo BASE_PATH; ?>/owner/holidays.php">定休日設定</a></li>
+                <li><a class="dropdown-item" href="<?php echo BASE_PATH; ?>/owner/announcements.php">お知らせ管理</a></li>
+                <li><a class="dropdown-item" href="<?php echo BASE_PATH; ?>/owner/shift_templates.php">シフトパターン設定</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="<?php echo BASE_PATH; ?>/owner/system_settings.php">システム設定</a></li>
+              </ul>
+            </li>
           <?php else: ?>
             <!-- アルバイト用メニュー -->
             <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/parttime/submit_shift.php">シフト希望提出</a></li>

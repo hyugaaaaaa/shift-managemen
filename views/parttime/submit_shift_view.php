@@ -27,6 +27,19 @@ render_header('希望シフト提出'); ?>
     <form method="post">
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
       <div class="mb-3">
+        <label class="form-label">シフトパターンから選択</label>
+        <select id="shift_template" class="form-select">
+            <option value="">-- パターンを選択してください --</option>
+            <?php foreach($templates as $tpl): ?>
+                <option value="<?php echo htmlspecialchars($tpl['template_id']); ?>" 
+                        data-start="<?php echo htmlspecialchars(substr($tpl['start_time'], 0, 5)); ?>" 
+                        data-end="<?php echo htmlspecialchars(substr($tpl['end_time'], 0, 5)); ?>">
+                    <?php echo htmlspecialchars($tpl['template_name']); ?> (<?php echo htmlspecialchars(substr($tpl['start_time'], 0, 5)); ?> - <?php echo htmlspecialchars(substr($tpl['end_time'], 0, 5)); ?>)
+                </option>
+            <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="mb-3">
         <label class="form-label">日付</label>
         <input type="date" name="shift_date" class="form-control" value="<?php echo htmlspecialchars($shift_date); ?>" min="<?php echo htmlspecialchars($min_date); ?>" max="<?php echo htmlspecialchars($max_date); ?>" required>
       </div>
@@ -40,6 +53,20 @@ render_header('希望シフト提出'); ?>
       </div>
       <button class="btn btn-primary" type="submit">提出</button>
     </form>
+
+    <script>
+    document.getElementById('shift_template').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const start = selectedOption.getAttribute('data-start');
+        const end = selectedOption.getAttribute('data-end');
+        
+        if (start && end) {
+            document.getElementsByName('start_time')[0].value = start;
+            document.getElementsByName('end_time')[0].value = end;
+        }
+    });
+    </script>
+
     <?php endif; ?>
   </div>
 </div>

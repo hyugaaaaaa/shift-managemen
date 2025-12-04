@@ -41,6 +41,11 @@ if (!empty($holidays)) {
     $holiday_msg = "今月の定休日: " . implode(', ', $holiday_dates_str);
 }
 
+// シフトパターン取得
+$stmt_templates = $pdo->query("SELECT * FROM shift_templates ORDER BY created_at DESC");
+$templates = $stmt_templates->fetchAll();
+
+
 if ($is_past_deadline) {
     $error = "今月のシフト提出期限（{$deadline_day}日）を過ぎているため、提出できません。";
 }
