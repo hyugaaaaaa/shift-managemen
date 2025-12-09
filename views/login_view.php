@@ -22,6 +22,9 @@
         <input name="password" type="password" class="form-control" required autocomplete="new-password">
       </div>
         <button class="btn btn-primary" type="submit">ログイン</button>
+      <div class="mt-2 text-end">
+        <a href="forgot_password.php" class="small">パスワードを忘れた方はこちら</a>
+      </div>
     </form>
 
     <?php if(!empty($show_register_link) && $show_register_link): ?>

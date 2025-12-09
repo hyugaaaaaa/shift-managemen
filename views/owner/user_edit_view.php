@@ -19,6 +19,12 @@
                         <label class="form-label">ユーザー名</label>
                         <input type="text" name="username" class="form-control" value="<?php echo htmlspecialchars($user['username'] ?? ''); ?>" required autocomplete="off">
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">メールアドレス</label>
+                        <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>">
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">時給 (円)</label>
                         <input type="number" name="hourly_rate" class="form-control" value="<?php echo htmlspecialchars($user['hourly_rate'] ?? '1000'); ?>" required>

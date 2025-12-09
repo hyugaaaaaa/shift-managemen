@@ -28,6 +28,9 @@ if ($id) {
 // フォーム送信時の処理（新規登録・更新）
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
+    // email取得
+    $email = $_POST['email'] ?? '';
+
     $hourly_rate = $_POST['hourly_rate'] ?? 0;
     $transportation_expense = $_POST['transportation_expense'] ?? 0;
     $password = $_POST['password'] ?? '';
@@ -46,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             if ($id) {
                 // 更新処理
-                $sql = 'UPDATE users SET username = ?, hourly_rate = ?, transportation_expense = ?';
-                $params = [$username, $hourly_rate, $transportation_expense];
+                $sql = 'UPDATE users SET username = ?, email = ?, hourly_rate = ?, transportation_expense = ?';
+                $params = [$username, $email, $hourly_rate, $transportation_expense];
                 
                 // パスワードが入力されている場合のみ更新（空欄なら変更しない）
                 if (!empty($password)) {
@@ -73,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = '新規作成時はパスワードが必須です。';
                 } else {
                     // パスワードをハッシュ化して保存
-                    $stmt = $pdo->prepare('INSERT INTO users (username, password_hash, user_type, hourly_rate, transportation_expense) VALUES (?, ?, ?, ?, ?)');
-                    $stmt->execute([$username, password_hash($password, PASSWORD_DEFAULT), 'part-time', $hourly_rate, $transportation_expense]);
+                    $stmt = $pdo->prepare('INSERT INTO users (username, email, password_hash, user_type, hourly_rate, transportation_expense) VALUES (?, ?, ?, ?, ?, ?)');
+                    $stmt->execute([$username, $email, password_hash($password, PASSWORD_DEFAULT), 'part-time', $hourly_rate, $transportation_expense]);
                     $msg = '作成しました。';
                     $id = $pdo->lastInsertId();
                     // 登録後のデータを再取得

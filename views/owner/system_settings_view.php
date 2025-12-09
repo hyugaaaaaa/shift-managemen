@@ -51,6 +51,8 @@
                     <div class="form-text">給与の支払日を設定します。</div>
                 </div>
 
+
+
                 <button type="submit" class="btn btn-primary">保存</button>
             </form>
         </div>

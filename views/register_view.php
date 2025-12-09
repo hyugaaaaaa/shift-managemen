@@ -25,6 +25,11 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="email" class="form-label">メールアドレス</label>
+                        <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                    </div>
+
+                    <div class="mb-3">
                         <label for="password" class="form-label">パスワード (8文字以上)</label>
                         <input type="password" class="form-control" id="password" name="password" required minlength="8" autocomplete="new-password">
                     </div>

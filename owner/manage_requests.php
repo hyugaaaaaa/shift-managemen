@@ -23,9 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($request_id > 0 && in_array($action, ['approve','reject'], true)) {
         try {
             $pdo->beginTransaction();
-            $stmt = $pdo->prepare('SELECT user_id, shift_date, start_time, end_time FROM shifts_requested WHERE request_id = ? FOR UPDATE');
+            $stmt = $pdo->prepare('SELECT r.user_id, r.shift_date, r.start_time, r.end_time, u.email, u.username FROM shifts_requested r JOIN users u ON r.user_id = u.user_id WHERE r.request_id = ? FOR UPDATE');
             $stmt->execute([$request_id]);
             $req = $stmt->fetch();
+            
+
             if (!$req) {
                 throw new Exception('該当リクエストが見つかりません。');
             }
@@ -44,11 +46,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // リクエストを approved に
                 $up = $pdo->prepare('UPDATE shifts_requested SET request_status = "approved" WHERE request_id = ?');
                 $up->execute([$request_id]);
+                
+                // メール通知
+                if (!empty($req['email'])) {
+                    $subject = "【シフト承認】" . $req['shift_date'];
+                    $body = "{$req['username']} さん\n\n申請された以下のシフト希望が承認されました。\n\n日付: {$req['shift_date']}\n時間: " . substr($req['start_time'], 0, 5) . " 〜 " . substr($req['end_time'], 0, 5) . "\n\nご確認ください。";
+                    send_mail($req['email'], $subject, $body);
+                }
+
                 $msg = '承認して確定シフトに追加しました。';
+                
+
             } else {
                 $up = $pdo->prepare('UPDATE shifts_requested SET request_status = "rejected" WHERE request_id = ?');
                 $up->execute([$request_id]);
+                
+                // メール通知
+                if (!empty($req['email'])) {
+                    $subject = "【シフト却下】" . $req['shift_date'];
+                    $body = "{$req['username']} さん\n\n申請された以下のシフト希望は却下されました。\n\n日付: {$req['shift_date']}\n時間: " . substr($req['start_time'], 0, 5) . " 〜 " . substr($req['end_time'], 0, 5) . "\n\n詳細は店長までお問い合わせください。";
+                    send_mail($req['email'], $subject, $body);
+                }
+
                 $msg = '却下しました。';
+                
+
             }
             $pdo->commit();
             header('Location: ' . BASE_PATH . '/owner/manage_requests.php?msg=' . urlencode($msg));

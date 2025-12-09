@@ -33,6 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['closing_day', $closing_day]);
             $stmt->execute(['payment_day', $payment_day]);
             
+
+            
             $msg = '設定を保存しました。';
         }
     }
@@ -42,5 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $current_deadline = get_system_setting($pdo, 'shift_submission_deadline_day', 25);
 $current_closing_day = get_system_setting($pdo, 'closing_day', 31);
 $current_payment_day = get_system_setting($pdo, 'payment_day', 25);
+
 
 require_once __DIR__ . '/../views/owner/system_settings_view.php';

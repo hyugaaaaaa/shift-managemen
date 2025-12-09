@@ -9,6 +9,17 @@ define('DB_PASS','');
 // 開発環境に合わせて変更してください。
 if(!defined('BASE_PATH')) define('BASE_PATH', '/shift_management');
 
+// メール送信設定 (SMTP)
+// ★★★ 以下をご自身の環境に合わせて変更してください ★★★
+define('SMTP_HOST', 'smtp.gmail.com');      // SMTPサーバー (例: smtp.gmail.com)
+define('SMTP_PORT', 587);                   // SMTPポート (587 or 465)
+define('SMTP_USER', 'hyuga9494@gmail.com'); // 送信元メールアドレス
+define('SMTP_PASS', 'ahgn toel semx grcc');    // アプリパスワード (通常のパスワードではありません)
+define('SMTP_SECURE', 'tls');               // 暗号化方式 (tls or ssl)
+define('FROM_EMAIL', 'hyuga9494@gmail.com');
+define('FROM_NAME', 'Shift Management System');
+
+
 // データベース接続関数
 // シングルトンパターンで接続を再利用します
 function getPDO(){

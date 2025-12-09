@@ -35,20 +35,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$title, $content]);
                     $msg = 'お知らせを作成しました。';
 
+                    // メール送信処理
+                    $target = $_POST['target'] ?? 'all';
+                    $target_month = $_POST['target_month'] ?? ''; // YYYY-MM
+                    
+                    $sql = "SELECT email, username, user_id FROM users WHERE user_type = 'part-time' AND is_deleted = 0 AND email IS NOT NULL AND email != ''";
+                    $params = [];
+
+                    if ($target === 'unsubmitted' && !empty($target_month)) {
+                        // 指定月(初日〜末日)にシフト希望(shifts_requested)を出していないユーザー
+                        $start_date = $target_month . '-01';
+                        $end_date = date('Y-m-t', strtotime($start_date));
+                        
+                        $sql .= " AND user_id NOT IN (
+                            SELECT DISTINCT user_id FROM shifts_requested 
+                            WHERE shift_date BETWEEN ? AND ?
+                        )";
+                        $params[] = $start_date;
+                        $params[] = $end_date;
+                    }
+
+                    $stmtUsers = $pdo->prepare($sql);
+                    $stmtUsers->execute($params);
+                    $users = $stmtUsers->fetchAll();
+
+                    $subject = "【お知らせ】" . $title;
+                    $body = $content . "\n\n--\n" . FROM_NAME;
+
+                    $count = 0;
+                    foreach ($users as $u) {
+                        if (send_mail($u['email'], $subject, "{$u['username']} さん\n\n" . $body)) {
+                            $count++;
+                        }
+                    }
+                    if ($count > 0) {
+                        $msg .= " ({$count}名へメール通知しました)";
+                    } else {
+                        $msg .= " (メール送信対象がいませんでした)";
+                    }
+
                 } catch (Exception $e) {
                     $error = 'エラーが発生しました: ' . $e->getMessage();
                 }
             }
         } elseif ($action === 'delete') {
-            $id = $_POST['id'] ?? 0;
-            if ($id) {
+            $delete_ids = [];
+            
+            // 一括削除（チェックボックス）
+            if (!empty($_POST['delete_ids']) && is_array($_POST['delete_ids'])) {
+                $delete_ids = $_POST['delete_ids'];
+            }
+            // 個別削除（ボタン）
+            elseif (!empty($_POST['delete_id'])) {
+                $delete_ids[] = $_POST['delete_id'];
+            }
+
+            if (!empty($delete_ids)) {
                 try {
-                    $stmt = $pdo->prepare("DELETE FROM announcements WHERE id = ?");
-                    $stmt->execute([$id]);
+                    // プレースホルダー作成
+                    $in  = str_repeat('?,', count($delete_ids) - 1) . '?';
+                    $stmt = $pdo->prepare("DELETE FROM announcements WHERE id IN ($in)");
+                    $stmt->execute($delete_ids);
                     $msg = 'お知らせを削除しました。';
                 } catch (Exception $e) {
                     $error = '削除に失敗しました: ' . $e->getMessage();
                 }
+            } else {
+                $error = '削除対象が選択されていません。';
             }
         }
     }

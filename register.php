@@ -19,6 +19,7 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? ''); // email取得
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
@@ -34,9 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // ユーザー登録 (最初のユーザーなので owner 固定)
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (username, password_hash, user_type) VALUES (?, ?, 'owner')");
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, user_type) VALUES (?, ?, ?, 'owner')");
         try {
-            $stmt->execute([$username, $password_hash]);
+            $stmt->execute([$username, $email, $password_hash]);
             header('Location: ' . BASE_PATH . '/index.php?registered=1');
             exit;
         } catch (PDOException $e) {
