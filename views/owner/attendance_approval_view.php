@@ -20,10 +20,10 @@
         <h1 class="mb-4">勤怠承認画面</h1>
         
         <?php if ($message): ?>
-            <div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
+            <script>document.addEventListener('DOMContentLoaded', () => showToast('<?= htmlspecialchars($message) ?>', 'success'));</script>
         <?php endif; ?>
         <?php if ($error): ?>
-            <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+            <script>document.addEventListener('DOMContentLoaded', () => showToast('<?= htmlspecialchars($error) ?>', 'error'));</script>
         <?php endif; ?>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -106,11 +106,14 @@
                                 <td class="text-start"><?= nl2br(htmlspecialchars($notes ?? '')) ?></td>
                                 <td>
                                     <?php if (($record['type'] ?? '') === 'attendance' && !$is_approved): ?>
-                                        <form method="post" style="display:inline;">
+                                        <form method="post" style="display:inline;" onsubmit="showLoading(this)">
                                             <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                                             <input type="hidden" name="action" value="approve">
                                             <input type="hidden" name="attendance_id" value="<?= $att_id ?>">
-                                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> 承認</button>
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                                <i class="bi bi-check-lg"></i> 承認
+                                            </button>
                                         </form>
                                     <?php endif; ?>
                                     <?php if (($record['type'] ?? '') === 'attendance'): ?>
@@ -137,7 +140,7 @@
                     <h5 class="modal-title" id="editModalLabel">勤怠実績修正（オーナー）</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="post" action="">
+                <form method="post" action="" onsubmit="showLoading(this)">
                     <div class="modal-body">
                         <p id="modalDateDisplay" class="fw-bold mb-3"></p>
                         <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
@@ -173,7 +176,10 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                        <button type="submit" class="btn btn-primary">修正して承認</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                            修正して承認
+                        </button>
                     </div>
                 </form>
             </div>

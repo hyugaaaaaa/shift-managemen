@@ -1,23 +1,39 @@
 <?php
-// DB接続設定 - 本番では環境変数や別途設定ファイルで管理してください
-define('DB_HOST','127.0.0.1');
-define('DB_NAME','shift_management');
-define('DB_USER','root');
-define('DB_PASS','');
-// アプリのベースパス（ドキュメントルート配下の配置フォルダ）。
-// XAMPP で `c:\xampp\htdocs\shift_management` に置いている場合は '/shift_management' を指定。
-// 開発環境に合わせて変更してください。
-if(!defined('BASE_PATH')) define('BASE_PATH', '/shift_management');
+// Composerのオートローダー読み込み
+require_once __DIR__ . '/vendor/autoload.php';
+
+// .envの読み込み（エラー制御付き）
+try {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->safeLoad();
+} catch (Exception $e) {
+    // .envがなくても続行（本番環境での環境変数設定を想定）
+}
+
+// セッションセキュリティ設定の強化（セッション開始前に設定が必要）
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_strict_mode', 1);
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    ini_set('session.cookie_secure', 1);
+}
+
+// DB接続設定
+define('DB_HOST', $_ENV['DB_HOST'] ?? '127.0.0.1');
+define('DB_NAME', $_ENV['DB_NAME'] ?? 'shift_management');
+define('DB_USER', $_ENV['DB_USER'] ?? 'root');
+define('DB_PASS', $_ENV['DB_PASSWORD'] ?? '');
+
+// アプリのベースパス
+if(!defined('BASE_PATH')) define('BASE_PATH', $_ENV['BASE_PATH'] ?? '/shift_management');
 
 // メール送信設定 (SMTP)
-// ★★★ 以下をご自身の環境に合わせて変更してください ★★★
-define('SMTP_HOST', 'smtp.gmail.com');      // SMTPサーバー (例: smtp.gmail.com)
-define('SMTP_PORT', 587);                   // SMTPポート (587 or 465)
-define('SMTP_USER', 'hyuga9494@gmail.com'); // 送信元メールアドレス
-define('SMTP_PASS', 'ahgn toel semx grcc');    // アプリパスワード (通常のパスワードではありません)
-define('SMTP_SECURE', 'tls');               // 暗号化方式 (tls or ssl)
-define('FROM_EMAIL', 'hyuga9494@gmail.com');
-define('FROM_NAME', 'Shift Management System');
+define('SMTP_HOST', $_ENV['SMTP_HOST'] ?? '');
+define('SMTP_PORT', $_ENV['SMTP_PORT'] ?? 587);
+define('SMTP_USER', $_ENV['SMTP_USER'] ?? '');
+define('SMTP_PASS', $_ENV['SMTP_PASSWORD'] ?? '');
+define('SMTP_SECURE', $_ENV['SMTP_SECURE'] ?? 'tls');
+define('FROM_EMAIL', $_ENV['FROM_EMAIL'] ?? '');
+define('FROM_NAME', $_ENV['FROM_NAME'] ?? 'Shift Management System');
 
 
 // データベース接続関数

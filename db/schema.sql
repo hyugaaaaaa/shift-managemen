@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `transportation_expense` DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `payslip_consent` TINYINT(1) NOT NULL DEFAULT 0,
   `payslip_consent_date` DATETIME DEFAULT NULL,
+  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
+  `login_attempts` INT DEFAULT 0,
+  `locked_until` DATETIME DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -124,6 +127,7 @@ CREATE TABLE IF NOT EXISTS `operation_logs` (
 
 -- パスワードリセット
 CREATE TABLE IF NOT EXISTS `password_resets` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
   `email` VARCHAR(255) NOT NULL,
   `token` VARCHAR(255) NOT NULL,
   `expires_at` DATETIME NOT NULL,
@@ -131,3 +135,31 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   INDEX (`email`),
   INDEX (`token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- お知らせ
+CREATE TABLE IF NOT EXISTS `announcements` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `title` VARCHAR(255) NOT NULL,
+    `content` TEXT NOT NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- シフトテンプレート
+CREATE TABLE IF NOT EXISTS `shift_templates` (
+    `template_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `template_name` VARCHAR(50) NOT NULL,
+    `start_time` TIME NOT NULL,
+    `end_time` TIME NOT NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 定休日
+CREATE TABLE IF NOT EXISTS `holidays` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `holiday_date` DATE NOT NULL UNIQUE,
+    `description` VARCHAR(255),
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Usersテーブル拡張 (LINE連携用)
+ALTER TABLE `users` ADD COLUMN `line_user_id` VARCHAR(255) DEFAULT NULL;
