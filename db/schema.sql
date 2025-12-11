@@ -161,5 +161,15 @@ CREATE TABLE IF NOT EXISTS `holidays` (
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Usersテーブル拡張 (LINE連携用)
-ALTER TABLE `users` ADD COLUMN `line_user_id` VARCHAR(255) DEFAULT NULL;
+
+-- メール送信キュー
+CREATE TABLE IF NOT EXISTS `mail_queue` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `to_email` VARCHAR(255) NOT NULL,
+    `subject` VARCHAR(255) NOT NULL,
+    `body` TEXT NOT NULL,
+    `status` ENUM('pending', 'sent', 'failed') NOT NULL DEFAULT 'pending',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `sent_at` DATETIME DEFAULT NULL,
+    `error_message` TEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

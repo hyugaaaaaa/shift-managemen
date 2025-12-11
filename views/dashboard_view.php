@@ -141,69 +141,152 @@
         </table>
     </div>
 
-    <!-- Mobile List View (d-md-none) -->
+    <!-- Mobile Grid View (d-md-none) -->
     <div class="d-md-none">
-        <?php
-        $todayStr = date('Y-m-d');
-        for ($d = 1; $d <= $daysInMonth; $d++) {
-            $currentDate = date('Y-m-d', strtotime("{$startOfMonth} +".($d-1).' days'));
-            $is_today = ($currentDate === $todayStr);
-            $is_holiday = in_array($currentDate, $holidays);
-            $dayOfWeek = date('w', strtotime($currentDate));
-            $dayOfWeekStr = ['日', '月', '火', '水', '木', '金', '土'][$dayOfWeek];
+        <!-- Weekday Header -->
+        <div class="d-flex text-center mb-2 fw-bold text-muted small">
+            <div style="flex:1; color: var(--danger-color);">日</div>
+            <div style="flex:1">月</div>
+            <div style="flex:1">火</div>
+            <div style="flex:1">水</div>
+            <div style="flex:1">木</div>
+            <div style="flex:1">金</div>
+            <div style="flex:1; color: var(--primary-color);">土</div>
+        </div>
+
+        <div class="mobile-calendar-grid">
+            <?php
+            // Empty cells for start padding
+            for ($i = 1; $i < $firstWeekday; $i++) { 
+                echo '<div class="mobile-grid-cell empty"></div>';
+            }
+
+            $firstDateStr = ''; // To auto-select first day
             
-            $containerClass = 'mobile-calendar-day';
-            if ($is_today) $containerClass .= ' today';
-            if ($is_holiday) $containerClass .= ' holiday';
-            
-            $dateClass = 'dow-' . $dayOfWeek;
-        ?>
-        <div class="<?php echo $containerClass; ?>">
-            <div class="mobile-date-header">
-                <div>
-                    <span class="<?php echo $dateClass; ?>"><?php echo intval(substr($currentDate, 8, 2)); ?>日 (<?php echo $dayOfWeekStr; ?>)</span>
+            for ($d = 1; $d <= $daysInMonth; $d++) {
+                $currentDate = date('Y-m-d', strtotime("{$startOfMonth} +".($d-1).' days'));
+                
+                if ($d === 1) $firstDateStr = $currentDate;
+
+                $is_today = ($currentDate === date('Y-m-d'));
+                $is_holiday = in_array($currentDate, $holidays);
+                $dayOfWeek = date('w', strtotime($currentDate));
+                
+                $shifts = $shifts_by_date[$currentDate] ?? [];
+                $has_shift = !empty($shifts);
+                
+                $cellClass = 'mobile-grid-cell';
+                if ($is_today) $cellClass .= ' today';
+                $dowClass = 'dow-' . $dayOfWeek;
+
+                // Prepare Data Attributes for JS
+                $detailHtml = '';
+                if ($is_holiday) {
+                    $detailHtml .= '<div class="badge bg-danger mb-2">定休日</div>';
+                }
+                if ($has_shift) {
+                    $detailHtml .= '<ul class="list-unstyled mb-0">';
+                    foreach ($shifts as $s) {
+                        $ds = $s['display_start'] ?? '';
+                        $de = $s['display_end'] ?? '';
+                        if ($ds && $de) $t = htmlspecialchars($ds) . ' - ' . htmlspecialchars($de);
+                        elseif($ds) $t = '出勤: ' . htmlspecialchars($ds);
+                        else $t = '退勤: ' . htmlspecialchars($de);
+                        
+                        $note = isset($s['note']) ? htmlspecialchars($s['note']) : '';
+                        $user = (!empty($_SESSION['user_type']) && $_SESSION['user_type'] === 'owner') ? htmlspecialchars($s['username'] ?? '') : '';
+                        
+                        $detailHtml .= '<li class="mb-2 p-2 bg-light rounded">';
+                        $detailHtml .= '<strong>'.$t.'</strong>';
+                        if($user) $detailHtml .= ' <span class="text-muted small">('.$user.')</span>';
+                        if($note) $detailHtml .= '<div class="small text-muted mt-1">'.$note.'</div>';
+                        $detailHtml .= '</li>';
+                    }
+                    $detailHtml .= '</ul>';
+                } elseif (!$is_holiday) {
+                    $detailHtml .= '<div class="text-muted">予定はありません</div>';
+                }
+            ?>
+            <div class="<?php echo $cellClass; ?> <?php echo $dowClass; ?>" 
+                 onclick="selectDate(this, '<?php echo intval(substr($currentDate, 8, 2)); ?>日 (<?php echo ['日','月','火','水','木','金','土'][$dayOfWeek]; ?>)', '<?php echo htmlspecialchars($detailHtml, ENT_QUOTES); ?>')"
+                 id="cell-<?php echo $currentDate; ?>">
+                
+                <span class="mobile-grid-date"><?php echo intval(substr($currentDate, 8, 2)); ?></span>
+                
+                <div class="mobile-grid-dots">
                     <?php if ($is_holiday): ?>
-                        <span class="mobile-holiday-badge">定休日</span>
+                        <div class="mobile-dot dot-holiday"></div>
+                    <?php endif; ?>
+                    <?php if ($has_shift): ?>
+                        <div class="mobile-dot dot-shift"></div>
                     <?php endif; ?>
                 </div>
             </div>
-            
-            <?php if (!empty($shifts_by_date[$currentDate])): ?>
-                <div class="mobile-shift-list">
-                    <?php foreach ($shifts_by_date[$currentDate] as $s): ?>
-                        <?php
-                        $ds = $s['display_start'] ?? '';
-                        $de = $s['display_end'] ?? '';
-                        $liClass = 'mobile-shift-normal'; // basic style
-                        if ($ds !== '' && $de !== '') {
-                            $disp = htmlspecialchars($ds) . ' - ' . htmlspecialchars($de);
-                        } elseif ($ds !== '') {
-                            $disp = '出勤: ' . htmlspecialchars($ds);
-                            $liClass = 'mobile-shift-start';
-                        } else {
-                            $disp = '退勤: ' . htmlspecialchars($de);
-                            $liClass = 'mobile-shift-end';
-                        }
-                        $note = isset($s['note']) ? htmlspecialchars($s['note']) : '';
-                        $user = (!empty($_SESSION['user_type']) && $_SESSION['user_type'] === 'owner') ? htmlspecialchars($s['username'] ?? '') : '';
-                        ?>
-                        <div class="mobile-shift-item <?php echo $liClass; ?>">
-                            <div>
-                                <?php echo $disp; ?>
-                                <?php if($note): ?><span class="mobile-note"><?php echo $note; ?></span><?php endif; ?>
-                            </div>
-                            <?php if($user): ?>
-                                <small class="text-muted"><?php echo $user; ?></small>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="text-muted small ps-2">予定なし</div>
-            <?php endif; ?>
+            <?php } ?>
         </div>
-        <?php } ?>
+
+        <!-- Detail Area -->
+        <div class="mobile-detail-area" id="mobileDetailArea">
+            <div class="mobile-detail-header" id="mobileDetailTitle">日付を選択してください</div>
+            <div class="mobile-detail-content" id="mobileDetailContent">
+                カレンダーの日付をタップすると詳細が表示されます。
+            </div>
+        </div>
     </div>
+
+    <script>
+    function selectDate(element, dateStr, contentHtml) {
+        // Remove active class from all
+        document.querySelectorAll('.mobile-grid-cell').forEach(el => el.classList.remove('active'));
+        // Add active to clicked
+        element.classList.add('active');
+        
+        // Update detail area
+        document.getElementById('mobileDetailTitle').textContent = dateStr;
+        
+        // Decode HTML entities if needed (simple assignment handles standard tags)
+        // Since we passed escaped HTML in 'onclick', we need to be careful.
+        // Or simpler: put data in hidden divs and clone them? 
+        // Current approach: Using a textarea hack or just innerHTML if we trust the source (our own PHP).
+        // Since attributes are ENT_QUOTES escaped, we need to unescape slightly to set innerHTML properly?
+        // Actually, rendering formatted HTML into a data-attribute is messy.
+        // Let's use a simpler approach: Hidden Content Blocks.
+    
+        // Re-implementing with Hidden Content Blocks below:
+    }
+    </script>
+    
+    <!-- Redoing the Loop logic below for cleaner JS interaction -->
+    <div style="display:none;">
+        <?php foreach($shifts_by_date as $date => $shifts): /* Loop again or use previous loop to generate hidden divs */ ?>
+        <?php endforeach; ?>
+    </div>
+    
+    <!-- REPLACING SCRIPT WITH ROBUST VERSION -->
+    <script>
+    function selectDate(element, dateTitle, contentEncoded) {
+        document.querySelectorAll('.mobile-grid-cell').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        
+        document.getElementById('mobileDetailTitle').textContent = dateTitle;
+        
+        // Decode the content (it was htmlspecialchars encoded)
+        var txt = document.createElement('textarea');
+        txt.innerHTML = contentEncoded;
+        document.getElementById('mobileDetailContent').innerHTML = txt.value;
+    }
+    
+    // Auto-select today or first day
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = '<?php echo date('Y-m-d'); ?>';
+        var el = document.getElementById('cell-' + today);
+        if (!el) {
+            // First day of month
+            el = document.querySelector('.mobile-grid-cell:not(.empty)');
+        }
+        if (el) el.click();
+    });
+    </script>
 
   </div>
 </div>

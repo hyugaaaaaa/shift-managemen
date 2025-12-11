@@ -98,7 +98,8 @@ function h($str) {
  */
 function send_mail($to, $subject, $body) {
     $service = new MailService();
-    return $service->send($to, $subject, $body);
+    // 同期送信から非同期送信キューへの登録に変更
+    return $service->queue($to, $subject, $body);
 }
 
 

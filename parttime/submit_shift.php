@@ -31,6 +31,47 @@ $stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETW
 $stmt->execute([$min_date, $max_date]);
 $holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+// カレンダー表示用イベントデータの作成
+$calendar_events = [];
+
+// 1. 定休日イベント
+foreach ($holidays as $h_date) {
+    $calendar_events[] = [
+        'title' => '定休日',
+        'start' => $h_date,
+        'display' => 'background',
+        'backgroundColor' => '#ffebEE', // 薄い赤
+        'borderColor' => '#ffcdd2'
+    ];
+}
+
+// 2. 提出済みシフトイベント
+$stmt_shifts = $pdo->prepare("SELECT * FROM shifts_requested WHERE user_id = ? AND shift_date BETWEEN ? AND ?");
+$stmt_shifts->execute([$_SESSION['user_id'], $min_date, $max_date]);
+$requested_shifts = $stmt_shifts->fetchAll();
+
+foreach ($requested_shifts as $s) {
+    $start_short = substr($s['start_time'], 0, 5);
+    $end_short = substr($s['end_time'], 0, 5);
+    $status_text = ($s['request_status'] == 'approved') ? '承認済' : '申請中';
+    $color = ($s['request_status'] == 'approved') ? '#1cc88a' : '#4e73df'; // 承認:緑, 申請中:青
+    
+    $calendar_events[] = [
+        'title' => "{$start_short}-{$end_short}",
+        'start' => $s['shift_date'],
+        'color' => $color,
+        'textColor' => '#ffffff',
+        'extendedProps' => [
+            'status' => $status_text,
+            'start_time' => $start_short,
+            'end_time' => $end_short
+        ]
+    ];
+}
+
+// JSONエンコード（ビューへ渡す）
+$json_events = json_encode($calendar_events);
+
 // 定休日案内メッセージ作成
 $holiday_msg = '';
 if (!empty($holidays)) {

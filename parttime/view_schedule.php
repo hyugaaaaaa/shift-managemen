@@ -16,8 +16,22 @@ if (!empty($_SESSION['user_type']) && $_SESSION['user_type'] !== 'part-time') {
 }
 
 $pdo = getPDO();
-$stmt = $pdo->prepare('SELECT schedule_id, shift_date, start_time, end_time, created_at FROM shifts_scheduled WHERE user_id = ? ORDER BY shift_date ASC');
-$stmt->execute([$_SESSION['user_id']]);
+
+// 月指定（デフォルトは今月）
+$year_month = $_GET['m'] ?? date('Y-m');
+$timestamp = strtotime($year_month . '-01');
+$target_year_month = date('Y年n月', $timestamp);
+$min_date = date('Y-m-01', $timestamp);
+$max_date = date('Y-m-t', $timestamp);
+
+// 休日取得
+$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?");
+$stmt->execute([$min_date, $max_date]);
+$holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+// スケジュール取得 (指定月のみ)
+$stmt = $pdo->prepare('SELECT schedule_id, shift_date, start_time, end_time, created_at FROM shifts_scheduled WHERE user_id = ? AND shift_date BETWEEN ? AND ? ORDER BY shift_date ASC');
+$stmt->execute([$_SESSION['user_id'], $min_date, $max_date]);
 $schedules = $stmt->fetchAll();
 
 // 表示用に日跨ぎシフトを分割して展開

@@ -40,10 +40,18 @@ function render_header($title = 'シフト管理', $show_nav = true){
 <!-- ナビゲーションバー -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand" href="<?php echo !empty($_SESSION['user_id']) ? BASE_PATH . '/dashboard.php' : BASE_PATH . '/index.php'; ?>">シフト管理</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <a class="navbar-brand fw-bold" href="<?php echo !empty($_SESSION['user_id']) ? BASE_PATH . '/dashboard.php' : BASE_PATH . '/index.php'; ?>">
+        <i class="bi bi-calendar-check me-1"></i>シフト管理
+    </a>
+    
+    <!-- Mobile User Name Only (Replaces Toggler) -->
+    <?php if(!empty($_SESSION['username'])): ?>
+    <div class="d-lg-none text-white fw-bold">
+        <i class="bi bi-person-circle me-1"></i>
+        <?php echo htmlspecialchars($_SESSION['username']); ?>
+    </div>
+    <?php endif; ?>
+
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <?php if(!empty($_SESSION['user_id'])): ?>
@@ -107,6 +115,59 @@ function render_footer(){
     &copy; Shift Management System
   </div>
 </footer>
+
+<!-- Mobile Bottom Navigation -->
+<?php if(isset($_SESSION['user_id'])): ?>
+<nav class="bottom-nav d-flex d-md-none">
+    <?php 
+    $current_page = basename($_SERVER['PHP_SELF']);
+    // Determine user type for links
+    $user_type = $_SESSION['user_type'] ?? 'parttime';
+    ?>
+
+    <!-- Home -->
+    <a href="<?php echo BASE_PATH; ?>/dashboard.php" class="bottom-nav-item <?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
+        <i class="bi bi-house-door<?php echo $current_page == 'dashboard.php' ? '-fill' : ''; ?>"></i>
+        <span>ホーム</span>
+    </a>
+
+    <?php if($user_type === 'owner'): ?>
+        <!-- Owner: Approve -->
+        <a href="<?php echo BASE_PATH; ?>/owner/manage_requests.php" class="bottom-nav-item <?php echo $current_page == 'manage_requests.php' ? 'active' : ''; ?>">
+            <i class="bi bi-check-square<?php echo $current_page == 'manage_requests.php' ? '-fill' : ''; ?>"></i>
+            <span>承認</span>
+        </a>
+        <!-- Owner: Users -->
+        <a href="<?php echo BASE_PATH; ?>/owner/users.php" class="bottom-nav-item <?php echo $current_page == 'users.php' ? 'active' : ''; ?>">
+            <i class="bi bi-people<?php echo $current_page == 'users.php' ? '-fill' : ''; ?>"></i>
+            <span>従業員</span>
+        </a>
+    <?php else: ?>
+        <!-- Parttime: Submit Shift -->
+        <a href="<?php echo BASE_PATH; ?>/parttime/submit_shift.php" class="bottom-nav-item <?php echo $current_page == 'submit_shift.php' ? 'active' : ''; ?>">
+            <i class="bi bi-calendar-plus<?php echo $current_page == 'submit_shift.php' ? '-fill' : ''; ?>"></i>
+            <span>提出</span>
+        </a>
+        <!-- Parttime: View Schedule -->
+        <a href="<?php echo BASE_PATH; ?>/parttime/view_schedule.php" class="bottom-nav-item <?php echo $current_page == 'view_schedule.php' ? 'active' : ''; ?>">
+            <i class="bi bi-calendar-check<?php echo $current_page == 'view_schedule.php' ? '-fill' : ''; ?>"></i>
+            <span>確認</span>
+        </a>
+    <?php endif; ?>
+
+    <!-- Help -->
+    <a href="<?php echo BASE_PATH; ?>/help.php" class="bottom-nav-item <?php echo $current_page == 'help.php' ? 'active' : ''; ?>">
+        <i class="bi bi-question-circle<?php echo $current_page == 'help.php' ? '-fill' : ''; ?>"></i>
+        <span>ヘルプ</span>
+    </a>
+
+    <!-- Settings (Profile) -->
+    <a href="<?php echo BASE_PATH; ?>/profile.php" class="bottom-nav-item <?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
+        <i class="bi bi-person-gear"></i>
+        <span>設定</span>
+    </a>
+</nav>
+<?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?php echo BASE_PATH; ?>/js/main.js?v=<?php echo time(); ?>"></script>
 </body>
