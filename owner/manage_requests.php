@@ -199,7 +199,7 @@ render_header('希望シフト一覧（オーナー）');
 <div class="row">
   <div class="col-md-12">
     <h1 class="h4 mb-3">希望シフト一覧</h1>
-    <div class="mb-3 d-flex justify-content-between align-items-center">
+    <div class="mb-3 d-flex justify-content-between">
       <div class="btn-group">
         <a class="btn btn-sm btn-outline-secondary filter-btn <?php echo $filter==='pending'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=pending">保留</a>
         <a class="btn btn-sm btn-outline-secondary filter-btn <?php echo $filter==='all'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=all">すべて</a>
@@ -207,8 +207,8 @@ render_header('希望シフト一覧（オーナー）');
         <a class="btn btn-sm btn-outline-secondary filter-btn <?php echo $filter==='rejected'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=rejected">却下</a>
       </div>
       
-      <button type="button" class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#createModal">
-        <i class="bi bi-plus-lg me-1"></i>新規<span class="d-none d-md-inline">シフト登録</span>
+      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+        <i class="bi bi-plus-lg me-1"></i>新規シフト登録
       </button>
     </div>
 
