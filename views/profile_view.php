@@ -31,13 +31,6 @@
                             </ul>
                         </div>
                     </div>
-                    <?php else: ?>
-                    <div class="mb-3">
-                        <h6 class="text-secondary small fw-bold"><i class="bi bi-grid-fill me-1"></i> メニュー</h6>
-                        <a href="<?php echo BASE_PATH; ?>/parttime/payslip_list.php" class="btn btn-outline-secondary w-100 mb-2 text-start">
-                            <i class="bi bi-receipt me-2"></i>給与明細を確認
-                        </a>
-                    </div>
                     <?php endif; ?>
                     
                     <hr class="my-3">

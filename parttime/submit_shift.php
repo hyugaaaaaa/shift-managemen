@@ -20,6 +20,12 @@ $shift_date = $_POST['shift_date'] ?? $min_date;
 $start_time = $_POST['start_time'] ?? '';
 $end_time = $_POST['end_time'] ?? '';
 
+// フラッシュメッセージの取得
+if (isset($_SESSION['success_message'])) {
+    $success = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
 // 提出期限チェック
 $deadline_day = (int)get_system_setting($pdo, 'shift_submission_deadline_day', 25);
 $today_day = (int)date('d');
@@ -136,12 +142,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_past_deadline){
         $stmt = $pdo->prepare('INSERT INTO shifts_requested (user_id, shift_date, start_time, end_time, request_status) VALUES (?, ?, ?, ?, ? )');
         $stmt->execute([$_SESSION['user_id'], $shift_date, $start_time, $end_time, 'pending']);
         
-        $success = '希望シフトを登録しました。';
-        
-        // 登録成功後はフォームをクリア
-        $shift_date = $min_date;
-        $start_time = '';
-        $end_time = '';
+        // PRGパターン: セッションにメッセージを保存してリダイレクト
+        $_SESSION['success_message'] = '希望シフトを登録しました。';
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit;
     }
   }
 }

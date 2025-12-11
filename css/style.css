@@ -136,6 +136,23 @@ body {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
+.filter-btn {
+    width: 6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0.5rem 0.25rem;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .filter-btn {
+        width: 4rem;
+        font-size: 0.75rem;
+        padding: 0.4rem 0;
+    }
+}
+
 .btn-primary {
     background: var(--primary-gradient);
     border: none;
@@ -267,6 +284,11 @@ body {
     font-weight: 700;
     color: var(--text-muted);
     margin-bottom: 0.5rem;
+}
+
+.calendar-selected {
+    box-shadow: inset 0 0 0 2px var(--primary-color) !important;
+    background-color: rgba(78, 115, 223, 0.05);
 }
 
 .shift-item {
@@ -986,11 +1008,13 @@ body {
     text-decoration: none !important;
     color: var(--primary-color);
 }
+
 /* ======================== */
 /* Responsive Design Styles */
 /* ======================== */
 
 @media (max-width: 768px) {
+
     /* Layout */
     .page-container {
         margin: 20px auto;
@@ -1005,7 +1029,8 @@ body {
 
     /* Typography */
     html {
-        font-size: 14px; /* Slightly smaller base on mobile if needed */
+        font-size: 14px;
+        /* Slightly smaller base on mobile if needed */
     }
 
     .page-title {
@@ -1019,7 +1044,7 @@ body {
         border-radius: 8px;
         padding: 10px;
     }
-    
+
     .navbar-nav .nav-link {
         padding: 10px 15px;
     }
@@ -1030,7 +1055,7 @@ body {
         gap: 10px;
         margin-bottom: 1rem !important;
     }
-    
+
     .fc-toolbar-chunk {
         display: flex;
         justify-content: center;
@@ -1047,13 +1072,14 @@ body {
     }
 
     .fc-daygrid-day-frame {
-        min-height: 60px; /* Ensure touch target size */
+        min-height: 60px;
+        /* Ensure touch target size */
     }
-    
+
     .fc-daygrid-day-events {
         margin-bottom: 0;
     }
-    
+
     /* Simplify event display on mobile to dots or small bars if needed, 
        but for now keeping text but smaller */
     .fc-event {
@@ -1065,7 +1091,7 @@ body {
     .modal-dialog {
         margin: 10px;
     }
-    
+
     .modal-content {
         border-radius: 0.75rem;
     }
@@ -1074,7 +1100,7 @@ body {
     .table-responsive {
         border: 0;
     }
-    
+
     /* Utilities */
     .d-none-mobile {
         display: none !important;
@@ -1088,7 +1114,7 @@ body {
     border-radius: 8px;
     margin-bottom: 12px;
     padding: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
 }
 
@@ -1167,7 +1193,8 @@ body {
 /* Adjust body padding for bottom nav */
 @media (max-width: 768px) {
     body {
-        padding-bottom: 80px; /* Height of bottom nav + extra space */
+        padding-bottom: 80px;
+        /* Height of bottom nav + extra space */
     }
 
     /* Hide standard navbar brand/toggler when using bottom nav if desired, 
@@ -1182,21 +1209,24 @@ body {
 /* Mobile Form Optimization */
 /* ========================================= */
 @media (max-width: 768px) {
+
     /* Prevent iOS zoom on input focus */
-    .form-control, 
+    .form-control,
     .form-select,
     input[type='text'],
     input[type='date'],
     input[type='time'],
     input[type='email'],
     input[type='password'] {
-        font-size: 16px !important; /* Minimum font size for iOS to stop zooming */
+        font-size: 16px !important;
+        /* Minimum font size for iOS to stop zooming */
     }
 
     /* Improve tap targets */
     .btn {
         padding: 0.6rem 1.2rem;
-        min-height: 44px; /* Apple recommendation */
+        min-height: 44px;
+        /* Apple recommendation */
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1208,7 +1238,8 @@ body {
 /* ========================================= */
 .btn-mobile-fab {
     position: fixed;
-    bottom: 80px; /* Above bottom nav */
+    bottom: 80px;
+    /* Above bottom nav */
     right: 20px;
     width: 56px;
     height: 56px;
@@ -1302,9 +1333,18 @@ body {
 }
 
 /* Status Colors for Left Border */
-.status-normal .timeline-right::before { background-color: var(--primary-color); }
-.status-holiday .timeline-right::before { background-color: var(--danger-color); }
-.status-empty .timeline-right::before { background-color: var(--border-color); opacity: 0.5; }
+.status-normal .timeline-right::before {
+    background-color: var(--primary-color);
+}
+
+.status-holiday .timeline-right::before {
+    background-color: var(--danger-color);
+}
+
+.status-empty .timeline-right::before {
+    background-color: var(--border-color);
+    opacity: 0.5;
+}
 
 .timeline-shift-item {
     font-size: 0.95rem;
@@ -1331,8 +1371,18 @@ body {
 }
 
 /* Day of week colors */
-.dow-0 .timeline-date, .dow-0 .timeline-dow { color: var(--danger-color); } /* Sun */
-.dow-6 .timeline-date, .dow-6 .timeline-dow { color: var(--primary-color); } /* Sat */
+.dow-0 .timeline-date,
+.dow-0 .timeline-dow {
+    color: var(--danger-color);
+}
+
+/* Sun */
+.dow-6 .timeline-date,
+.dow-6 .timeline-dow {
+    color: var(--primary-color);
+}
+
+/* Sat */
 
 
 /* ========================================= */
@@ -1346,7 +1396,8 @@ body {
 }
 
 .mobile-grid-cell {
-    aspect-ratio: 1; /* Square cells */
+    aspect-ratio: 1;
+    /* Square cells */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1370,8 +1421,13 @@ body {
     color: var(--text-dark);
 }
 
-.dow-0 .mobile-grid-date { color: var(--danger-color); }
-.dow-6 .mobile-grid-date { color: var(--primary-color); }
+.dow-0 .mobile-grid-date {
+    color: var(--danger-color);
+}
+
+.dow-6 .mobile-grid-date {
+    color: var(--primary-color);
+}
 
 .mobile-grid-dots {
     display: flex;
@@ -1384,8 +1440,14 @@ body {
     height: 6px;
     border-radius: 50%;
 }
-.dot-shift { background-color: var(--primary-color); }
-.dot-holiday { background-color: var(--danger-color); }
+
+.dot-shift {
+    background-color: var(--primary-color);
+}
+
+.dot-holiday {
+    background-color: var(--danger-color);
+}
 
 .mobile-detail-area {
     background: #fff;
@@ -1408,6 +1470,44 @@ body {
 }
 
 
-.dot-pending { background-color: var(--primary-color); }
-.dot-approved { background-color: var(--success-color); }
+.dot-pending {
+    background-color: var(--primary-color);
+}
 
+.dot-approved {
+    background-color: var(--success-color);
+}
+
+/* PC Dashboard Calendar Fix */
+/* PC Dashboard Calendar Fix */
+.calendar-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.calendar-cell {
+    width: 14.28%;
+    /* 100% / 7 days */
+    vertical-align: top;
+    height: 100px;
+    overflow: hidden;
+    position: relative;
+    padding: 5px;
+    font-size: 0.9rem;
+}
+
+.calendar-cell ul {
+    overflow-y: auto;
+    max-height: 70px;
+    padding-right: 2px;
+}
+
+/* Scrollbar styling for calendar cells */
+.calendar-cell ul::-webkit-scrollbar {
+    width: 4px;
+}
+
+.calendar-cell ul::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}

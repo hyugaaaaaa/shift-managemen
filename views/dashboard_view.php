@@ -57,88 +57,191 @@
           </div>
         </div>
 
-    <!-- PC Table View (d-none d-md-block) -->
+    <!-- PC View (d-none d-md-block) -->
     <div class="d-none d-md-block">
-        <table class="table table-bordered calendar-table">
-          <thead class="table-light">
-            <tr>
-              <th>月</th>
-              <th>火</th>
-              <th>水</th>
-              <th>木</th>
-              <th>金</th>
-              <th>土</th>
-              <th>日</th>
-            </tr>
-          </thead>
-          <tbody>
-          <?php
-          // カレンダー開始（週は月曜始まり）
-          $firstWeekday = date('N', strtotime($startOfMonth)); // 1 (Mon) - 7 (Sun)
-          $daysInMonth = date('t', strtotime($startOfMonth));
-    
-          $cells = [];
-          // 空セル
-          for ($i = 1; $i < $firstWeekday; $i++) { $cells[] = null; }
-          for ($d = 1; $d <= $daysInMonth; $d++) {
-              $cells[] = date('Y-m-d', strtotime("{$startOfMonth} +".($d-1).' days'));
-          }
-          while (count($cells) % 7 !== 0) { $cells[] = null; }
-    
-          $rowsCount = intdiv(count($cells), 7);
-          for ($r = 0; $r < $rowsCount; $r++) {
-              echo "<tr>";
-              for ($c = 0; $c < 7; $c++) {
-                  $idx = $r * 7 + $c;
-                  $date = $cells[$idx];
-                  
-                  $is_holiday = ($date !== null && in_array($date, $holidays));
-                  $bg_class = $is_holiday ? 'bg-light text-muted' : '';
-                  
-                  echo '<td class="calendar-cell ' . $bg_class . '">';
-                  if ($date === null) {
-                      echo '&nbsp;';
-                  } else {
-                      $dayNum = intval(substr($date,8,2));
-                      echo '<div class="fw-bold">'.$dayNum.'</div>';
-                      
-                      if ($is_holiday) {
-                          echo '<div class="badge bg-secondary mb-1">定休日</div>';
-                      }
-                      
-                      if (!empty($shifts_by_date[$date])) {
-                          echo '<ul class="list-unstyled small mb-0">';
-                              foreach ($shifts_by_date[$date] as $s) {
-                                $ds = $s['display_start'] ?? '';
-                                $de = $s['display_end'] ?? '';
-                                if ($ds !== '' && $de !== '') {
-                                  $disp = htmlspecialchars($ds) . ' - ' . htmlspecialchars($de);
-                                  $liClass = 'shift-normal';
-                                } elseif ($ds !== '') {
-                                  $disp = '出: ' . htmlspecialchars($ds);
-                                  $liClass = 'shift-start';
-                                } else {
-                                  $disp = '退: ' . htmlspecialchars($de);
-                                  $liClass = 'shift-end';
+        <div class="row">
+            <!-- Left Column: Calendar -->
+            <div class="col-md-9">
+                <table class="table table-bordered calendar-table h-100" id="pcCalendarTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-danger">日</th>
+                            <th>月</th>
+                            <th>火</th>
+                            <th>水</th>
+                            <th>木</th>
+                            <th>金</th>
+                            <th class="text-primary">土</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    // カレンダー生成
+                    $firstWeekday = date('w', strtotime($startOfMonth)); // 0 (Sun) - 6 (Sat)
+                    $daysInMonth = date('t', strtotime($startOfMonth));
+                    
+                    $cells = [];
+                    // 空セル (日曜始まりの場合、$firstWeekday個の空セル)
+                    for ($i = 0; $i < $firstWeekday; $i++) { $cells[] = null; }
+                    for ($d = 1; $d <= $daysInMonth; $d++) {
+                        $cells[] = date('Y-m-d', strtotime("{$startOfMonth} +".($d-1).' days'));
+                    }
+                    while (count($cells) % 7 !== 0) { $cells[] = null; }
+
+                    $rowsCount = intdiv(count($cells), 7);
+                    for ($r = 0; $r < $rowsCount; $r++) {
+                        echo "<tr>";
+                        for ($c = 0; $c < 7; $c++) {
+                            $idx = $r * 7 + $c;
+                            $date = $cells[$idx];
+                            
+                            $is_holiday = ($date !== null && in_array($date, $holidays));
+                            $bg_class = $is_holiday ? 'bg-light text-muted' : '';
+                            $cursor_class = $date ? 'cursor-pointer' : '';
+
+                            // 今日の日付判定
+                            if ($date === date('Y-m-d')) {
+                                $bg_class .= ' bg-info bg-opacity-10'; // 今日は薄い青
+                            }
+                            
+                            echo '<td class="calendar-cell ' . $bg_class . ' ' . $cursor_class . '" ';
+                            if ($date) {
+                                echo 'onclick="selectDatePC(this, \'' . $date . '\')" id="pc-cell-'.$date.'"';
+                            }
+                            echo '>';
+                            
+                            if ($date === null) {
+                                echo '&nbsp;';
+                            } else {
+                                $dayNum = intval(substr($date,8,2));
+                                echo '<div class="fw-bold mb-1">'.$dayNum.'</div>';
+                                
+                                if ($is_holiday) {
+                                    echo '<div class="badge bg-secondary mb-1">定休日</div>';
                                 }
-                                $note = isset($s['note']) ? ' <span class="shift-note">'.htmlspecialchars($s['note']).'</span>' : '';
-                                if (!empty($_SESSION['user_type']) && $_SESSION['user_type'] === 'owner') {
-                                  $user = htmlspecialchars($s['username'] ?? '');
-                                  echo '<li class="'. $liClass . '">' . $disp . $note . ' <span class="text-muted">(' . $user . ')</span></li>';
-                                } else {
-                                  echo '<li class="'. $liClass . '">' . $disp . $note . '</li>';
+                                
+                                if (!empty($shifts_by_date[$date])) {
+                                    $count = count($shifts_by_date[$date]);
+                                    // シフトあり表示（件数またはドット）
+                                    if ($_SESSION['user_type'] === 'owner') {
+                                        echo '<div class="text-primary small"><i class="bi bi-people-fill"></i> ' . $count . '名</div>';
+                                    } else {
+                                        // 自分のシフトのみバッジ表示
+                                        foreach ($shifts_by_date[$date] as $s) {
+                                            if ($s['user_id'] != $_SESSION['user_id']) continue; // 他人のシフトはカレンダーセルには表示しない
+
+                                            $ds = $s['display_start'] ?? '';
+                                            $de = $s['display_end'] ?? '';
+                                            if ($ds) echo '<div class="badge bg-primary text-wrap text-start mb-1">出:'.$ds.'</div>';
+                                            if ($de) echo '<div class="badge bg-danger text-wrap text-start">退:'.$de.'</div>';
+                                        }
+                                    }
                                 }
-                              }
-                          echo '</ul>';
-                      }
-                  }
-                  echo '</td>';
-              }
-              echo "</tr>";
-          }
-          ?>
-          </tbody>
-        </table>
+                            }
+                            echo '</td>';
+                        }
+                        echo "</tr>";
+                    }
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Right Column: Detail Panel -->
+            <div class="col-md-3">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-primary text-white">
+                        <i class="bi bi-calendar-event me-2"></i><span id="detailTitle">日付を選択</span>
+                    </div>
+                    <div class="card-body" id="detailContent" style="min-height: 300px; max-height: 80vh; overflow-y: auto;">
+                        <p class="text-muted text-center py-5">カレンダーの日付をクリックすると<br>詳細が表示されます。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        // PHPからデータをJSONとして受け渡す
+        const shiftsData = <?php echo json_encode($shifts_by_date, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+        const holidaysData = <?php echo json_encode($holidays, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+        const currentUserId = <?php echo json_encode($_SESSION['user_id']); ?>;
+
+        function selectDatePC(element, dateStr) {
+            // アクティブスタイルの切り替え
+            document.querySelectorAll('#pcCalendarTable td').forEach(el => el.classList.remove('calendar-selected'));
+            element.classList.add('calendar-selected'); // 選択状態を強調
+
+            // タイトル更新: YYYY-MM-DD -> DD日 (曜日)
+            const dateObj = new Date(dateStr);
+            const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][dateObj.getDay()];
+            const formattedDate = dateObj.getDate() + '日 (' + dayOfWeek + ')';
+            document.getElementById('detailTitle').textContent = formattedDate;
+
+            // コンテンツ生成
+            const container = document.getElementById('detailContent');
+            let html = '';
+
+            // 定休日チェック
+            if (holidaysData.includes(dateStr)) {
+                html += '<div class="alert alert-secondary mb-3"><i class="bi bi-shop me-2"></i>定休日です</div>';
+            }
+
+            const shifts = shiftsData[dateStr];
+            if (shifts && shifts.length > 0) {
+                html += '<div class="list-group list-group-flush">';
+                shifts.forEach(s => {
+                    const ds = s.display_start || '';
+                    const de = s.display_end || '';
+                    const note = s.note || '';
+                    const username = s.username || '';
+                    const isMe = (s.user_id == currentUserId);
+                    const bgClass = isMe ? 'bg-primary-subtle' : '';
+
+                    html += '<div class="list-group-item px-2 ' + bgClass + '">';
+                    
+                    // 名前は全員に表示 (自分には(あなた)をつける)
+                    let nameDisplay = username;
+                    if (isMe) nameDisplay += ' <span class="badge bg-primary ms-1">あなた</span>';
+
+                    html += '<div class="fw-bold mb-1"><i class="bi bi-person-circle me-1"></i>' + nameDisplay + '</div>';
+
+                    if (ds && de) {
+                        html += '<div class="text-dark ms-3">' + ds + ' - ' + de + '</div>';
+                    } else if (ds) {
+                        html += '<div class="text-primary ms-3">出勤: ' + ds + '</div>';
+                    } else if (de) {
+                        html += '<div class="text-danger ms-3">退勤: ' + de + '</div>';
+                    }
+
+                    if (note) {
+                        html += '<div class="small text-muted mt-1 ms-3"><i class="bi bi-info-circle me-1"></i>' + note + '</div>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div>';
+            } else {
+                if (!holidaysData.includes(dateStr)) {
+                    html += '<div class="text-center text-muted py-4">シフト・予定はありません</div>';
+                }
+            }
+            container.innerHTML = html;
+        }
+        
+        // 初期表示時、今日の日付があれば選択、なければ1日を選択
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = '<?php echo date("Y-m-d"); ?>';
+            const startOfMonth = '<?php echo $startOfMonth; ?>';
+            const todayCell = document.getElementById('pc-cell-' + today);
+            
+            if (todayCell) {
+                todayCell.click();
+            } else {
+                // 今月表示中で今日が含まれない場合は1日を選択
+                const firstDayCell = document.getElementById('pc-cell-' + startOfMonth);
+                if (firstDayCell) firstDayCell.click();
+            }
+        });
+        </script>
     </div>
 
     <!-- Mobile Grid View (d-md-none) -->
@@ -173,18 +276,28 @@
                 $dayOfWeek = date('w', strtotime($currentDate));
                 
                 $shifts = $shifts_by_date[$currentDate] ?? [];
-                $has_shift = !empty($shifts);
+                
+                // ここでの $shifts は全員分なので、Mobile Gridのドットやデータ属性用に処理を分ける
+                $my_shifts = [];
+                foreach($shifts as $s) {
+                    if($s['user_id'] == $_SESSION['user_id']) {
+                        $my_shifts[] = $s;
+                    }
+                }
+                $has_my_shift = !empty($my_shifts); // ドット表示用（自分のシフトがあるか）
+                $has_any_shift = !empty($shifts); // 詳細表示用（誰かしらシフトがあるか）
+
                 
                 $cellClass = 'mobile-grid-cell';
                 if ($is_today) $cellClass .= ' today';
                 $dowClass = 'dow-' . $dayOfWeek;
 
-                // Prepare Data Attributes for JS
+                // Prepare Data Attributes for JS (All Shifts)
                 $detailHtml = '';
                 if ($is_holiday) {
                     $detailHtml .= '<div class="badge bg-danger mb-2">定休日</div>';
                 }
-                if ($has_shift) {
+                if ($has_any_shift) {
                     $detailHtml .= '<ul class="list-unstyled mb-0">';
                     foreach ($shifts as $s) {
                         $ds = $s['display_start'] ?? '';
@@ -194,12 +307,21 @@
                         else $t = '退勤: ' . htmlspecialchars($de);
                         
                         $note = isset($s['note']) ? htmlspecialchars($s['note']) : '';
-                        $user = (!empty($_SESSION['user_type']) && $_SESSION['user_type'] === 'owner') ? htmlspecialchars($s['username'] ?? '') : '';
+                        $user = htmlspecialchars($s['username'] ?? '');
+                        // 自分かどうか
+                        $isMe = ($s['user_id'] == $_SESSION['user_id']);
+                        $bgStyle = $isMe ? 'background-color: #e3f2fd;' : 'bg-light'; // 自分の場合は薄い青
                         
-                        $detailHtml .= '<li class="mb-2 p-2 bg-light rounded">';
+                        $detailHtml .= '<li class="mb-2 p-2 rounded" style="'.$bgStyle.'">';
+                        $detailHtml .= '<div class="fw-bold small"><i class="bi bi-person-circle me-1"></i>'.$user;
+                        if($isMe) $detailHtml .= ' <span class="badge bg-primary ms-1">あなた</span>';
+                        $detailHtml .= '</div>';
+                        
+                        $detailHtml .= '<div class="ps-3">';
                         $detailHtml .= '<strong>'.$t.'</strong>';
-                        if($user) $detailHtml .= ' <span class="text-muted small">('.$user.')</span>';
                         if($note) $detailHtml .= '<div class="small text-muted mt-1">'.$note.'</div>';
+                        $detailHtml .= '</div>';
+                        
                         $detailHtml .= '</li>';
                     }
                     $detailHtml .= '</ul>';
@@ -217,7 +339,7 @@
                     <?php if ($is_holiday): ?>
                         <div class="mobile-dot dot-holiday"></div>
                     <?php endif; ?>
-                    <?php if ($has_shift): ?>
+                    <?php if ($has_my_shift): ?>
                         <div class="mobile-dot dot-shift"></div>
                     <?php endif; ?>
                 </div>

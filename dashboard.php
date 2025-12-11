@@ -28,17 +28,11 @@ $pdo = getPDO();
 $stmt_news = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 3");
 $announcements = $stmt_news->fetchAll();
 // シフトデータの取得
-if (!empty($_SESSION['user_type']) && $_SESSION['user_type'] === 'owner') {
-    // オーナーの場合: 全従業員のシフトを取得
-    $sql = 'SELECT s.*, u.username FROM shifts_scheduled s JOIN users u ON s.user_id = u.user_id WHERE s.shift_date BETWEEN ? AND ? ORDER BY s.shift_date, s.start_time';
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$startOfMonth, $endOfMonth]);
-} else {
-    // パートタイムの場合: 自分のシフトのみ取得
-    $sql = 'SELECT s.* FROM shifts_scheduled s WHERE s.user_id = ? AND s.shift_date BETWEEN ? AND ? ORDER BY s.shift_date, s.start_time';
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$_SESSION['user_id'], $startOfMonth, $endOfMonth]);
-}
+// シフトデータの取得
+// 全従業員のシフトを取得する（パートタイムも全員分見るため）
+$sql = 'SELECT s.*, u.username FROM shifts_scheduled s JOIN users u ON s.user_id = u.user_id WHERE s.shift_date BETWEEN ? AND ? ORDER BY s.shift_date, s.start_time';
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$startOfMonth, $endOfMonth]);
 $rows = $stmt->fetchAll();
 
 // 定休日の取得
