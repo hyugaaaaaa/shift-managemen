@@ -61,17 +61,26 @@ $days_worked = 0;
 $normal_minutes = 0;
 $night_minutes = 0;
 
-foreach ($user_records as $date => $record) {
-    // 勤務時間がない（欠勤など）場合はスキップ
-    if (empty($record['start']) || empty($record['end'])) continue;
+foreach ($user_records as $date => $daily_records) {
+    // 1日分のレコードを走査（同日に複数回の勤務がある可能性を考慮）
+    $has_worked_today = false;
 
-    $days_worked++;
+    foreach ($daily_records as $record) {
+        // 勤務時間がない（欠勤など）場合はスキップ
+        if (empty($record['start']) || empty($record['end'])) continue;
 
-    // 共通関数で時間計算
-    $times = calculate_shift_minutes($date, $record['start'], $record['end']);
+        // 共通関数で時間計算
+        $times = calculate_shift_minutes($date, $record['start'], $record['end']);
 
-    $night_minutes += $times['night_minutes'];
-    $normal_minutes += $times['normal_minutes'];
+        $night_minutes += $times['night_minutes'];
+        $normal_minutes += $times['normal_minutes'];
+
+        $has_worked_today = true;
+    }
+
+    if ($has_worked_today) {
+        $days_worked++;
+    }
 }
 
 // 給与計算

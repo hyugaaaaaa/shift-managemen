@@ -45,7 +45,10 @@
                 </thead>
                 <tbody>
                     <?php foreach ($dates as $date): 
-                        $record = $my_records[$date] ?? [];
+                        $daily_records = $my_records[$date] ?? [];
+                        if (empty($daily_records)) $daily_records = [[]]; // 表示用にダミーレコード作成
+
+                        foreach ($daily_records as $index => $record):
                         $sched_start = ($record['type'] ?? '') === 'schedule' || isset($record['schedule_id']) ? ($record['start'] ?? '-') : '-';
                         $sched_end = ($record['type'] ?? '') === 'schedule' || isset($record['schedule_id']) ? ($record['end'] ?? '-') : '-';
                         
@@ -70,7 +73,11 @@
                         elseif ($w === 6) $date_class = 'text-primary'; // 土
                     ?>
                     <tr class="<?= $row_class ?>">
-                        <td class="<?= $date_class ?>"><?= date('j日', strtotime($date)) ?> <?= get_day_of_week_ja($date) ?></td>
+                        <td class="<?= $date_class ?>">
+                            <?php if ($index === 0): ?>
+                                <?= date('j日', strtotime($date)) ?> <?= get_day_of_week_ja($date) ?>
+                            <?php endif; ?>
+                        </td>
                         <td><?= $sched_start !== '-' ? substr($sched_start, 0, 5) . ' - ' . substr($sched_end, 0, 5) : '-' ?></td>
                         <td>
                             <?php if ($att_start): ?>
@@ -102,6 +109,7 @@
                             <?php endif; ?>
                         </td>
                     </tr>
+                    <?php endforeach; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>

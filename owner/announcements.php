@@ -70,6 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if ($count > 0) {
                         $msg .= " ({$count}名へメール通知しました)";
+                        
+                        // 非同期でメール送信プロセスを起動 (Windows環境を想定)
+                        // popenで切り離して実行
+                        // php.exeの絶対パスを指定 (XAMPP環境)
+                        $phpPath = 'C:\\xampp\\php\\php.exe';
+                        $scriptPath = __DIR__ . '/../process_mail.php';
+                        $cmd = 'start /B "" "' . $phpPath . '" "' . $scriptPath . '" > NUL 2>&1';
+                        pclose(popen($cmd, 'r'));
                     } else {
                         $msg .= " (メール送信対象がいませんでした)";
                     }

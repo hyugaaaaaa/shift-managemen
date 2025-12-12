@@ -53,37 +53,42 @@
                             // 日付順にソート
                             ksort($user_records);
                             
-                            foreach ($user_records as $date => $record):
-                                // 予定も実績もない日はスキップ（カレンダー全て出すと長いので）
-                                // ただし、予定があるか、実績がある場合は表示
-                                if (($record['type'] ?? '') === 'none') continue; 
+                            foreach ($user_records as $date => $daily_records):
+                                // 1日分のレコードを走査
+                                foreach ($daily_records as $index => $record):
+                                    // 予定も実績もない日はスキップ (legacy check, though ShiftService shouldn't return 'none')
+                                    if (($record['type'] ?? '') === 'none') continue; 
 
-                                $sched_start = ($record['type'] ?? '') === 'schedule' || isset($record['schedule_id']) ? ($record['start'] ?? '-') : '-';
-                                $sched_end = ($record['type'] ?? '') === 'schedule' || isset($record['schedule_id']) ? ($record['end'] ?? '-') : '-';
-                                
-                                $att_start = (($record['type'] ?? '') === 'attendance') ? ($record['start'] ?? '') : '';
-                                $att_end = (($record['type'] ?? '') === 'attendance') ? ($record['end'] ?? '') : '';
-                                $status = (($record['type'] ?? '') === 'attendance') ? ($record['status'] ?? '') : '';
-                                $is_approved = (($record['type'] ?? '') === 'attendance') ? ($record['is_approved'] ?? false) : false;
-                                $notes = (($record['type'] ?? '') === 'attendance') ? ($record['notes'] ?? '') : '';
-                                $att_id = (($record['type'] ?? '') === 'attendance') ? ($record['attendance_id'] ?? '') : '';
+                                    $sched_start = ($record['type'] ?? '') === 'schedule' || isset($record['schedule_id']) ? ($record['start'] ?? '-') : '-';
+                                    $sched_end = ($record['type'] ?? '') === 'schedule' || isset($record['schedule_id']) ? ($record['end'] ?? '-') : '-';
+                                    
+                                    $att_start = (($record['type'] ?? '') === 'attendance') ? ($record['start'] ?? '') : '';
+                                    $att_end = (($record['type'] ?? '') === 'attendance') ? ($record['end'] ?? '') : '';
+                                    $status = (($record['type'] ?? '') === 'attendance') ? ($record['status'] ?? '') : '';
+                                    $is_approved = (($record['type'] ?? '') === 'attendance') ? ($record['is_approved'] ?? false) : false;
+                                    $notes = (($record['type'] ?? '') === 'attendance') ? ($record['notes'] ?? '') : '';
+                                    $att_id = (($record['type'] ?? '') === 'attendance') ? ($record['attendance_id'] ?? '') : '';
 
-                                $has_diff = false;
-                                if ($sched_start !== '-' && $att_start === '') $has_diff = true;
-                                if ($att_start !== '' && $sched_start !== '-' && $att_start !== $sched_start) $has_diff = true;
-                                
-                                // 承認待ちはハイライト
-                                $row_class = '';
-                                if (($record['type'] ?? '') === 'attendance' && !$is_approved) $row_class = 'diff-alert';
-                                
-                                // 土日の色付け
-                                $w = (int)date('w', strtotime($date));
-                                $date_class = '';
-                                if ($w === 0) $date_class = 'text-danger';
-                                elseif ($w === 6) $date_class = 'text-primary';
+                                    $has_diff = false;
+                                    if ($sched_start !== '-' && $att_start === '') $has_diff = true;
+                                    if ($att_start !== '' && $sched_start !== '-' && $att_start !== $sched_start) $has_diff = true;
+                                    
+                                    // 承認待ちはハイライト
+                                    $row_class = '';
+                                    if (($record['type'] ?? '') === 'attendance' && !$is_approved) $row_class = 'diff-alert';
+                                    
+                                    // 土日の色付け
+                                    $w = (int)date('w', strtotime($date));
+                                    $date_class = '';
+                                    if ($w === 0) $date_class = 'text-danger';
+                                    elseif ($w === 6) $date_class = 'text-primary';
                             ?>
                             <tr class="<?= $row_class ?>">
-                                <td class="<?= $date_class ?>"><?= date('j日', strtotime($date)) ?> <?= get_day_of_week_ja($date) ?></td>
+                                <td class="<?= $date_class ?>">
+                                    <?php if ($index === 0): ?>
+                                        <?= date('j日', strtotime($date)) ?> <?= get_day_of_week_ja($date) ?>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?= $sched_start !== '-' ? substr($sched_start, 0, 5) . ' - ' . substr($sched_end, 0, 5) : '-' ?></td>
                                 <td>
                                     <?php if ($att_start): ?>
@@ -124,6 +129,7 @@
                                     <?php endif; ?>
                                 </td>
                             </tr>
+                            <?php endforeach; ?>
                             <?php endforeach; ?>
                         </tbody>
                     </table>

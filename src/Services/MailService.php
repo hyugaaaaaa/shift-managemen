@@ -11,29 +11,14 @@ class MailService
 
     public function __construct()
     {
-        // DB接続の取得（簡易的にグローバルな関数等から取得するか、都度接続するか。
-        // ここでは都度接続の実装例としますが、本来はDIが望ましいです。
-        // プロジェクト構成に合わせて調整します。
-        // 今回は既存の環境変数ロードの仕組みを利用して接続します。
-        
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $db   = $_ENV['DB_NAME'] ?? 'shift_management';
-        $user = $_ENV['DB_USER'] ?? 'root';
-        $pass = $_ENV['DB_PASS'] ?? '';
-        $charset = 'utf8mb4';
-        
-        $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-        $options = [
-            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_EMULATE_PREPARES   => false,
-        ];
-        
-        try {
-            $this->pdo = new \PDO($dsn, $user, $pass, $options);
-        } catch (\PDOException $e) {
-            // 接続エラー時のハンドリング
-            error_log("MailService DB Connection Error: " . $e->getMessage());
+        // config.php で定義されている getPDO() を利用して接続を取得
+        // これにより環境変数の差異問題を回避し、接続を共有できる
+        if (function_exists('getPDO')) {
+            $this->pdo = getPDO();
+        } else {
+            // 他のコンテキストで呼ばれた場合などのフォールバック (基本的にはありえないはず)
+            error_log("MailService Error: getPDO function not found.");
+            $this->pdo = null;
         }
     }
 

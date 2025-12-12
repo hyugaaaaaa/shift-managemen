@@ -5,9 +5,29 @@ require_once __DIR__ . '/vendor/autoload.php';
 // .envの読み込み（エラー制御付き）
 try {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-    $dotenv->safeLoad();
+    $dotenv->load();
 } catch (Exception $e) {
-    // .envがなくても続行（本番環境での環境変数設定を想定）
+    // phpdotenvでの読み込みに失敗した場合のフォールバック (手動パース)
+    // CLI環境などでエンコーディングやフォーマットの問題で失敗する場合があるため
+    $envFile = __DIR__ . '/.env';
+    if (file_exists($envFile)) {
+        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (strpos($line, '#') === 0) continue; // コメントスキップ
+            if (strpos($line, '=') !== false) {
+                list($key, $value) = explode('=', $line, 2);
+                $key = trim($key);
+                $value = trim($value);
+                // 引用符の削除 (簡易的)
+                $value = trim($value, "\"'");
+                // 環境変数にセット
+                $_ENV[$key] = $value;
+                $_SERVER[$key] = $value;
+                putenv("$key=$value");
+            }
+        }
+    }
 }
 
 // セッションセキュリティ設定の強化（セッション開始前に設定が必要）
@@ -18,22 +38,22 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
 }
 
 // DB接続設定
-define('DB_HOST', $_ENV['DB_HOST'] ?? '127.0.0.1');
-define('DB_NAME', $_ENV['DB_NAME'] ?? 'shift_management');
-define('DB_USER', $_ENV['DB_USER'] ?? 'root');
-define('DB_PASS', $_ENV['DB_PASSWORD'] ?? '');
+define('DB_HOST', $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? '127.0.0.1');
+define('DB_NAME', $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? 'shift_management');
+define('DB_USER', $_ENV['DB_USER'] ?? $_SERVER['DB_USER'] ?? 'root');
+define('DB_PASS', $_ENV['DB_PASSWORD'] ?? $_SERVER['DB_PASSWORD'] ?? $_ENV['DB_PASS'] ?? $_SERVER['DB_PASS'] ?? '');
 
 // アプリのベースパス
-if(!defined('BASE_PATH')) define('BASE_PATH', $_ENV['BASE_PATH'] ?? '/shift_management');
+if(!defined('BASE_PATH')) define('BASE_PATH', $_ENV['BASE_PATH'] ?? $_SERVER['BASE_PATH'] ?? '/shift_management');
 
 // メール送信設定 (SMTP)
-define('SMTP_HOST', $_ENV['SMTP_HOST'] ?? '');
-define('SMTP_PORT', $_ENV['SMTP_PORT'] ?? 587);
-define('SMTP_USER', $_ENV['SMTP_USER'] ?? '');
-define('SMTP_PASS', $_ENV['SMTP_PASSWORD'] ?? '');
-define('SMTP_SECURE', $_ENV['SMTP_SECURE'] ?? 'tls');
-define('FROM_EMAIL', $_ENV['FROM_EMAIL'] ?? '');
-define('FROM_NAME', $_ENV['FROM_NAME'] ?? 'Shift Management System');
+define('SMTP_HOST', $_ENV['SMTP_HOST'] ?? $_SERVER['SMTP_HOST'] ?? '');
+define('SMTP_PORT', $_ENV['SMTP_PORT'] ?? $_SERVER['SMTP_PORT'] ?? 587);
+define('SMTP_USER', $_ENV['SMTP_USER'] ?? $_SERVER['SMTP_USER'] ?? '');
+define('SMTP_PASS', $_ENV['SMTP_PASSWORD'] ?? $_SERVER['SMTP_PASSWORD'] ?? '');
+define('SMTP_SECURE', $_ENV['SMTP_SECURE'] ?? $_SERVER['SMTP_SECURE'] ?? 'tls');
+define('FROM_EMAIL', $_ENV['FROM_EMAIL'] ?? $_SERVER['FROM_EMAIL'] ?? '');
+define('FROM_NAME', $_ENV['FROM_NAME'] ?? $_SERVER['FROM_NAME'] ?? 'Shift Management System');
 
 
 // データベース接続関数
