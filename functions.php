@@ -102,6 +102,40 @@ function send_mail($to, $subject, $body) {
     return $service->queue($to, $subject, $body);
 }
 
+/**
+ * ログをファイルに書き込む
+ * @param string $message
+ * @param string $filename
+ */
+function write_log($message, $filename = 'app.log') {
+    $filepath = __DIR__ . '/' . $filename;
+    $log_message = "[" . date('Y-m-d H:i:s') . "] " . $message . "\n";
+    file_put_contents($filepath, $log_message, FILE_APPEND);
+}
+
+/**
+ * バックグラウンドでPHPスクリプトを実行する (Windows/XAMPP想定)
+ * @param string $script_path 実行するPHPスクリプトの絶対パス
+ */
+function launch_background_process($script_path) {
+    if (!file_exists($script_path)) {
+        write_log("Background process launch failed: Script not found at $script_path", 'error.log');
+        return;
+    }
+
+    $phpPath = defined('PHP_BINARY_PATH') ? PHP_BINARY_PATH : 'php';
+    
+    // Windows specifically
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        $cmd = 'start /B "" "' . $phpPath . '" "' . $script_path . '" > NUL 2>&1';
+        pclose(popen($cmd, 'r'));
+    } else {
+        // Unix-like fallback (just in case)
+        $cmd = $phpPath . ' ' . $script_path . ' > /dev/null 2>&1 &';
+        exec($cmd);
+    }
+}
+
 
 
 

@@ -55,6 +55,9 @@ define('SMTP_SECURE', $_ENV['SMTP_SECURE'] ?? $_SERVER['SMTP_SECURE'] ?? 'tls');
 define('FROM_EMAIL', $_ENV['FROM_EMAIL'] ?? $_SERVER['FROM_EMAIL'] ?? '');
 define('FROM_NAME', $_ENV['FROM_NAME'] ?? $_SERVER['FROM_NAME'] ?? 'Shift Management System');
 
+// PHP実行ファイルのパス (XAMPP環境等でパスが通っていない場合に対応)
+define('PHP_BINARY_PATH', $_ENV['PHP_BINARY_PATH'] ?? $_SERVER['PHP_BINARY_PATH'] ?? 'C:\\xampp\\php\\php.exe');
+
 
 // データベース接続関数
 // シングルトンパターンで接続を再利用します
