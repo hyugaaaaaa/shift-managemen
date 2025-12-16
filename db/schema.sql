@@ -1,8 +1,3 @@
--- MySQL / MariaDB 用スキーマ定義 (Updated for Multi-Tenant)
-CREATE DATABASE IF NOT EXISTS shift_management CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE shift_management;
-
--- 企業テーブル (Multi-Tenant Root)
 CREATE TABLE IF NOT EXISTS `companies` (
   `company_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `company_name` VARCHAR(100) NOT NULL,
@@ -14,7 +9,6 @@ CREATE TABLE IF NOT EXISTS `companies` (
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ユーザーテーブル
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `company_id` INT UNSIGNED NOT NULL,
@@ -39,7 +33,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `unique_email_company` (`email`, `company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- シフト希望
 CREATE TABLE IF NOT EXISTS `shifts_requested` (
   `request_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
@@ -53,7 +46,6 @@ CREATE TABLE IF NOT EXISTS `shifts_requested` (
   CONSTRAINT `fk_req_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 確定シフト
 CREATE TABLE IF NOT EXISTS `shifts_scheduled` (
   `schedule_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
@@ -66,7 +58,6 @@ CREATE TABLE IF NOT EXISTS `shifts_scheduled` (
   CONSTRAINT `fk_sched_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- システム設定 (Company Scope)
 CREATE TABLE IF NOT EXISTS `system_settings` (
   `company_id` INT UNSIGNED NOT NULL,
   `setting_key` VARCHAR(50) NOT NULL,
@@ -75,7 +66,6 @@ CREATE TABLE IF NOT EXISTS `system_settings` (
   FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 勤怠記録
 CREATE TABLE IF NOT EXISTS `attendance_records` (
   `attendance_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
@@ -94,7 +84,6 @@ CREATE TABLE IF NOT EXISTS `attendance_records` (
   UNIQUE KEY `unique_user_date` (`user_id`, `date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- スキル管理
 CREATE TABLE IF NOT EXISTS `skills` (
   `skill_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `skill_name` VARCHAR(100) NOT NULL UNIQUE,
@@ -110,7 +99,6 @@ CREATE TABLE IF NOT EXISTS `user_skills` (
   FOREIGN KEY (`skill_id`) REFERENCES `skills`(`skill_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- シフト交換
 CREATE TABLE IF NOT EXISTS `shift_exchanges` (
   `exchange_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `requester_user_id` INT UNSIGNED NOT NULL,
@@ -125,7 +113,6 @@ CREATE TABLE IF NOT EXISTS `shift_exchanges` (
   FOREIGN KEY (`requested_user_id`) REFERENCES `users`(`user_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 操作ログ
 CREATE TABLE IF NOT EXISTS `operation_logs` (
   `log_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED DEFAULT NULL,
@@ -137,7 +124,6 @@ CREATE TABLE IF NOT EXISTS `operation_logs` (
   PRIMARY KEY (`log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- パスワードリセット
 CREATE TABLE IF NOT EXISTS `password_resets` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `email` VARCHAR(255) NOT NULL,
@@ -149,7 +135,6 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   INDEX (`token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- お知らせ
 CREATE TABLE IF NOT EXISTS `announcements` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `company_id` INT UNSIGNED NOT NULL,
@@ -158,7 +143,6 @@ CREATE TABLE IF NOT EXISTS `announcements` (
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- シフトテンプレート
 CREATE TABLE IF NOT EXISTS `shift_templates` (
     `template_id` INT AUTO_INCREMENT PRIMARY KEY,
     `company_id` INT UNSIGNED NOT NULL,
@@ -169,7 +153,6 @@ CREATE TABLE IF NOT EXISTS `shift_templates` (
     FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 定休日
 CREATE TABLE IF NOT EXISTS `holidays` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `company_id` INT UNSIGNED NOT NULL,
@@ -180,7 +163,6 @@ CREATE TABLE IF NOT EXISTS `holidays` (
     FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- メール送信キュー
 CREATE TABLE IF NOT EXISTS `mail_queue` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `to_email` VARCHAR(255) NOT NULL,
@@ -191,3 +173,4 @@ CREATE TABLE IF NOT EXISTS `mail_queue` (
     `sent_at` DATETIME DEFAULT NULL,
     `error_message` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

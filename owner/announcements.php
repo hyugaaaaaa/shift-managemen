@@ -86,38 +86,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } elseif ($action === 'delete') {
-            $delete_ids = [];
-            
-            // 一括削除（チェックボックス）
-            if (!empty($_POST['delete_ids']) && is_array($_POST['delete_ids'])) {
-                $delete_ids = $_POST['delete_ids'];
-            }
-            // 個別削除（ボタン）
-            elseif (!empty($_POST['delete_id'])) {
-                $delete_ids[] = $_POST['delete_id'];
-            }
-
-            if (!empty($delete_ids)) {
+            $id = $_POST['id'] ?? null;
+            if ($id) {
                 try {
-                    // プレースホルダー作成
-                    $in  = str_repeat('?,', count($delete_ids) - 1) . '?';
                     $company_id = get_current_company_id();
-                    // 他社のお知らせを消さないように company_id チェック追加
-                    // DELETE FROM ... WHERE id IN (...) AND company_id = ?
-                    // IN句の後にパラメータを追加する必要がある。
+                    // 自社のお知らせのみ削除可能
+                    $stmt = $pdo->prepare("DELETE FROM announcements WHERE id = ? AND company_id = ?");
+                    $stmt->execute([$id, $company_id]);
                     
-                    $sql = "DELETE FROM announcements WHERE id IN ($in) AND company_id = ?";
-                    $params = $delete_ids;
-                    $params[] = $company_id;
+                    if ($stmt->rowCount() > 0) {
+                        $msg = 'お知らせを削除しました。';
+                    } else {
+                        $error = '削除対象が見つかりませんでした。';
+                    }
+                } catch (Exception $e) {
+                    $error = 'エラーが発生しました: ' . $e->getMessage();
+                }
+            }
+        } elseif ($action === 'delete_multiple') {
+            $ids = $_POST['ids'] ?? [];
+            if (!empty($ids) && is_array($ids)) {
+                try {
+                    $company_id = get_current_company_id();
+                    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                    $params = array_merge($ids, [$company_id]);
                     
+                    $sql = "DELETE FROM announcements WHERE id IN ($placeholders) AND company_id = ?";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute($params);
-                    $msg = 'お知らせを削除しました。';
+                    
+                    $count = $stmt->rowCount();
+                    if ($count > 0) {
+                        $msg = $count . '件のお知らせを削除しました。';
+                    } else {
+                        $error = '削除対象が見つかりませんでした。';
+                    }
                 } catch (Exception $e) {
-                    $error = '削除に失敗しました: ' . $e->getMessage();
+                    $error = 'エラーが発生しました: ' . $e->getMessage();
                 }
             } else {
-                $error = '削除対象が選択されていません。';
+                $error = '削除する項目が選択されていません。';
             }
         }
     }

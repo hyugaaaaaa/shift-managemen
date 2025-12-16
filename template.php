@@ -85,7 +85,7 @@ function render_header($title = 'シフト管理', $show_nav = true){
       <ul class="navbar-nav">
         <?php if(!empty($_SESSION['user_id'])): ?>
           <li class="nav-item"><span class="nav-link"><?php echo htmlspecialchars($_SESSION['username']); ?></span></li>
-          <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/profile.php">設定</a></li>
+
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/help.php">ヘルプ</a></li>
           <li class="nav-item"><a class="nav-link" href="<?php echo BASE_PATH; ?>/logout.php">ログアウト</a></li>
         <?php else: ?>
@@ -161,11 +161,7 @@ function render_footer(){
         <span>ヘルプ</span>
     </a>
 
-    <!-- Settings (Profile) -->
-    <a href="<?php echo BASE_PATH; ?>/profile.php" class="bottom-nav-item <?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
-        <i class="bi bi-person-gear"></i>
-        <span>設定</span>
-    </a>
+
 </nav>
 <?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

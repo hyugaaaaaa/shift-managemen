@@ -119,51 +119,93 @@
         </div>
 
         <!-- お知らせ一覧 -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>過去のお知らせ</span>
-                <button type="submit" form="bulkDeleteForm" class="btn btn-sm btn-danger" onclick="return confirm('選択したお知らせを本当に削除しますか？');">
-                    選択したお知らせを削除
-                </button>
-            </div>
-            <div class="card-body">
-                <?php if (empty($announcements)): ?>
+        <!-- お知らせ一覧 -->
+        <?php if (empty($announcements)): ?>
+            <div class="card">
+                <div class="card-header">過去のお知らせ</div>
+                <div class="card-body">
                     <p class="text-muted">お知らせはありません。</p>
-                <?php else: ?>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>過去のお知らせ</span>
+                    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
+                        <i class="bi bi-trash"></i> 選択した項目を削除
+                    </button>
+                </div>
+                <div class="card-body">
                     <form method="post" id="bulkDeleteForm">
                         <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
-                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="action" value="delete_multiple">
                         
-                        <div class="mb-2 form-check">
-                            <input class="form-check-input" type="checkbox" id="selectAll">
-                            <label class="form-check-label" for="selectAll">全て選択</label>
+                        <div class="mb-2 ms-2">
+                             <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll">
+                                <label class="form-check-label" for="selectAll">全て選択</label>
+                            </div>
                         </div>
 
                         <div class="list-group">
                             <?php foreach ($announcements as $a): ?>
-                                <div class="list-group-item">
-                                    <div class="d-flex w-100 justify-content-between align-items-start">
-                                        <div class="me-3 mt-1">
-                                            <input class="form-check-input delete-checkbox" type="checkbox" name="delete_ids[]" value="<?php echo h($a['id']); ?>">
-                                        </div>
-                                        <div style="flex: 1;">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h5 class="mb-1"><?php echo h($a['title']); ?></h5>
-                                                <small class="text-muted"><?php echo h($a['created_at']); ?></small>
-                                            </div>
-                                            <p class="mb-1" style="white-space: pre-wrap;"><?php echo h($a['content']); ?></p>
-                                        </div>
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 align-items-start">
+                                    <div class="me-3 mt-1">
+                                        <input class="form-check-input delete-checkbox" type="checkbox" name="ids[]" value="<?php echo $a['id']; ?>">
                                     </div>
-                                    <!-- 個別削除ボタン（機能的には一括削除と同じアクションを使うが、パラメータを変えてもよい。
-                                         ここではUI上はチェックボックス推奨だが、既存ボタンを残すなら button type="submit" name="delete_id" value="..." にする）-->
-                                    <div class="text-end mt-2">
-                                        <button type="submit" name="delete_id" value="<?php echo h($a['id']); ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('このお知らせを削除しますか？');">削除</button>
+                                    <div style="flex: 1;">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1"><?php echo h($a['title']); ?></h5>
+                                            <small class="text-muted"><?php echo h($a['created_at']); ?></small>
+                                        </div>
+                                        <p class="mb-1" style="white-space: pre-wrap;"><?php echo h($a['content']); ?></p>
+                                    </div>
+                                    <div class="ms-3">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete(<?php echo $a['id']; ?>, '<?php echo h($a['title']); ?>')">
+                                            <i class="bi bi-trash"></i> 削除
+                                        </button>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
                         </div>
                     </form>
-                <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- 削除確認モーダル (ループ外に1つだけ配置) -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">お知らせの削除</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmMsg">以下のお知らせを削除してもよろしいですか？</p>
+                <p class="fw-bold" id="deleteTargetTitle"></p>
+                <p class="text-danger small">この操作は取り消せません。</p>
+            </div>
+            <div class="modal-footer">
+                <!-- 個別削除用フォーム -->
+                <form method="post" id="singleDeleteForm" style="display:none;">
+                    <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="id" id="deleteTargetId">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-danger">削除する</button>
+                </form>
+
+                <!-- 一括削除用ボタン (JavaScriptで元のフォームを送信) -->
+                <div id="bulkDeleteActions" style="display:none;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger" id="confirmBulkDeleteBtn">削除する</button>
+                </div>
             </div>
         </div>
     </div>
@@ -171,16 +213,75 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 全選択チェックボックス
-    const selectAllInfo = document.getElementById('selectAll');
-    const checkboxesInfo = document.querySelectorAll('.delete-checkbox');
+    // --- 一括削除関連 ---
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const deleteCheckboxes = document.querySelectorAll('.delete-checkbox');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+    const confirmBulkDeleteBtn = document.getElementById('confirmBulkDeleteBtn');
 
-    if(selectAllInfo) {
-        selectAllInfo.addEventListener('change', function() {
-            checkboxesInfo.forEach(cb => {
-                cb.checked = selectAllInfo.checked;
-            });
+    // 全選択/解除
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            deleteCheckboxes.forEach(cb => cb.checked = isChecked);
+            toggleBulkDeleteBtn();
+        });
+    }
+
+    // 個別チェックボックスの監視
+    deleteCheckboxes.forEach(cb => {
+        cb.addEventListener('change', toggleBulkDeleteBtn);
+    });
+
+    // ボタンの有効化/無効化切り替え
+    function toggleBulkDeleteBtn() {
+        const checkedCount = document.querySelectorAll('.delete-checkbox:checked').length;
+        bulkDeleteBtn.disabled = checkedCount === 0;
+        
+        // 全てチェックされていたら「全選択」もチェック、そうでなければ外す
+        if (checkedCount === deleteCheckboxes.length && deleteCheckboxes.length > 0) {
+            selectAllCheckbox.checked = true;
+        } else {
+            selectAllCheckbox.checked = false;
+        }
+    }
+
+    // 一括削除ボタンクリック時
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', function() {
+            const checkedCount = document.querySelectorAll('.delete-checkbox:checked').length;
+            
+            // モーダル表示切り替え
+            document.getElementById('singleDeleteForm').style.display = 'none';
+            document.getElementById('bulkDeleteActions').style.display = 'block';
+            document.getElementById('deleteTargetTitle').textContent = checkedCount + '件のお知らせ';
+            document.getElementById('deleteConfirmMsg').textContent = '選択したお知らせを削除してもよろしいですか？';
+            
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        });
+    }
+
+    // モーダル内の一括削除実行ボタン
+    if (confirmBulkDeleteBtn) {
+        confirmBulkDeleteBtn.addEventListener('click', function() {
+            bulkDeleteForm.submit();
         });
     }
 });
+
+// --- 個別削除 (既存機能) ---
+function confirmDelete(id, title) {
+    // モーダル表示切り替え
+    document.getElementById('singleDeleteForm').style.display = 'block';
+    document.getElementById('bulkDeleteActions').style.display = 'none';
+    
+    document.getElementById('deleteTargetId').value = id;
+    document.getElementById('deleteTargetTitle').textContent = title;
+    document.getElementById('deleteConfirmMsg').textContent = '以下のお知らせを削除してもよろしいですか？';
+
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
 </script>
