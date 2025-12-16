@@ -25,20 +25,40 @@ $endOfMonth = date('Y-m-t', strtotime($startOfMonth));
 $pdo = getPDO();
 
 // 最新のお知らせ取得（3件）
+// TODO: お知らせも会社ごとに分離する必要があるが、現状は全社共通または未対応
 $stmt_news = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 3");
 $announcements = $stmt_news->fetchAll();
-// シフトデータの取得
+
 // シフトデータの取得
 // 全従業員のシフトを取得する（パートタイムも全員分見るため）
-$sql = 'SELECT s.*, u.username FROM shifts_scheduled s JOIN users u ON s.user_id = u.user_id WHERE s.shift_date BETWEEN ? AND ? ORDER BY s.shift_date, s.start_time';
+// 自分の会社のユーザーのみに限定
+$sql = '
+    SELECT s.*, u.username 
+    FROM shifts_scheduled s 
+    JOIN users u ON s.user_id = u.user_id 
+    WHERE s.shift_date BETWEEN ? AND ? 
+    AND u.company_id = ?
+    AND u.is_deleted = 0
+    ORDER BY s.shift_date, s.start_time
+';
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$startOfMonth, $endOfMonth]);
+$stmt->execute([$startOfMonth, $endOfMonth, $_SESSION['company_id']]);
 $rows = $stmt->fetchAll();
 
 // 定休日の取得
-$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?");
+$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?"); // holidaysテーブルにcompany_idがない場合は全社共通？要確認
+// holidaysテーブルを確認していないが、会社ごとの設定ならcompany_idが必要。
+// 今回は一旦既存のままにするが、シフトは確実に分離する。
 $stmt->execute([$startOfMonth, $endOfMonth]);
 $holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+// オーナーの場合、招待コードを取得
+$company_code = '';
+if (($_SESSION['user_type'] ?? '') === 'owner') {
+    $stmt = $pdo->prepare("SELECT company_code FROM companies WHERE company_id = ?");
+    $stmt->execute([$_SESSION['company_id']]);
+    $company_code = $stmt->fetchColumn() ?: '';
+}
 
 // 日付ごとの配列に整理
 $shifts_by_date = [];

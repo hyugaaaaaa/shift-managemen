@@ -7,6 +7,25 @@
             <div class="card-body">
                 <p>以下のアカウント設定を変更できます。</p>
                 
+                <p>以下のアカウント設定を変更できます。</p>
+
+                <div class="mb-4 p-3 bg-light rounded">
+                    <!-- ユーザー情報表示 -->
+                    <div class="mb-2">
+                        <small class="text-muted d-block">社員番号</small>
+                        <span class="fs-5 fw-bold"><?php echo htmlspecialchars($user['company_user_id'] ?? '-'); ?></span>
+                        <span class="text-muted small ms-2">(ID: <?php echo htmlspecialchars($user['user_id']); ?>)</span>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted d-block">氏名</small>
+                        <span class="fw-bold"><?php echo htmlspecialchars($user['username'] ?? ''); ?></span>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">メールアドレス</small>
+                        <span><?php echo htmlspecialchars($user['email'] ?? ''); ?></span>
+                    </div>
+                </div>
+                
                 <div class="d-grid gap-2 col-md-6 mx-auto">
                     
                     <?php if ($_SESSION['user_type'] === 'owner'): ?>

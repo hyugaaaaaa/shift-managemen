@@ -35,9 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $start_date = date('Y-m-01', strtotime($month . '-01'));
                 $end_date = date('Y-m-t', strtotime($start_date));
 
-                // 全従業員のデータを取得
-                $stmt = $pdo->prepare("SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = 'part-time' AND is_deleted = 0");
-                $stmt->execute();
+                // 全従業員のデータを取得（自社のみ）
+                $company_id = get_current_company_id();
+                $stmt = $pdo->prepare("SELECT user_id, company_user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = 'part-time' AND is_deleted = 0 AND company_id = ? ORDER BY company_user_id ASC");
+                $stmt->execute([$company_id]);
                 $users = $stmt->fetchAll();
 
                 // CSVヘッダー
@@ -67,35 +68,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                          // 念のため条件分岐を残しておく
                                         $mins = calculate_shift_minutes($date, $r['start'], $r['end']);
                                         $total_normal += $mins['normal_minutes'];
-                                        $total_night += $mins['night_minutes'];
-                                        $has_worked_today = true;
-                                     }
-                                }
-                            }
-                            if ($has_worked_today) {
-                                $days_worked++;
-                            }
-                        }
-                    }
+                // 新しいサービス層のインスタンス化 (仮)
+                // 実際には適切な場所でインスタンス化するか、DIコンテナを使用
+                require_once __DIR__ . '/../services/SalaryCalculationService.php';
+                $service = new SalaryCalculationService();
 
-                    $salary = calculate_salary_amount($total_normal, $total_night, $u['hourly_rate']);
-                    $transport = $days_worked * $u['transportation_expense'];
-                    $total_pay = $salary['subtotal'] + $transport;
-
+                $csv_data = mb_convert_encoding("社員番号,名前,年月,総勤務時間,総支給額,交通費,合計支給額\n", 'SJIS-win', 'UTF-8');
+                
+                foreach ($users as $user) {
+                    $work_records = $service->getMergedWorkRecords($pdo, $start_date, $end_date, $user['user_id'], $company_id);
+                    $salary_data = $service->calculateSalary($work_records, $user['hourly_rate'], $user['transportation_expense']);
+                    
                     $line = [
-                        $u['user_id'],
-                        $u['username'],
+                        $user['company_user_id'],
+                        $user['username'],
                         $month,
-                        $total_normal,
-                        $total_night,
-                        $salary['pay_normal'],
-                        $salary['pay_night'],
-                        $transport,
-                        $total_pay
+                        sprintf('%.2f', $salary_data['total_hours']),
+                        $salary_data['total_salary'],
+                        $salary_data['total_transportation'],
+                        $salary_data['grand_total']
                     ];
-                    // CSVエスケープ処理
-                    $line = array_map(function($v){ return '"' . str_replace('"', '""', $v) . '"'; }, $line);
-                    $csv_data .= implode(',', $line) . "\n";
+                    // CSV用にカンマエスケープ等は簡易実装
+                    $line = array_map(function($v){ return '"'.str_replace('"','""',$v).'"'; }, $line);
+                    $csv_data .= mb_convert_encoding(implode(',', $line) . "\n", 'SJIS-win', 'UTF-8');
                 }
 
                 // ファイル保存
@@ -113,22 +108,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $start_date = date('Y-m-01', strtotime($month . '-01'));
                 $end_date = date('Y-m-t', strtotime($start_date));
 
-                // シフトデータ取得
-                $sql = 'SELECT s.*, u.username FROM shifts_scheduled s JOIN users u ON s.user_id = u.user_id WHERE s.shift_date BETWEEN ? AND ? ORDER BY s.shift_date, s.start_time';
+                // シフトデータ取得（自社のみ、usersテーブルと結合してcompany_idチェック）
+                $company_id = get_current_company_id();
+                $sql = 'SELECT s.*, u.username, u.company_user_id FROM shifts_scheduled s JOIN users u ON s.user_id = u.user_id WHERE s.shift_date BETWEEN ? AND ? AND u.company_id = ? ORDER BY u.company_user_id, s.shift_date, s.start_time';
                 $stmt = $pdo->prepare($sql);
-                $stmt->execute([$start_date, $end_date]);
+                $stmt->execute([$start_date, $end_date, $company_id]);
                 $rows = $stmt->fetchAll();
 
-                $csv_data = "日付,従業員名,開始時刻,終了時刻\n";
-                foreach ($rows as $r) {
+                $csv_data = "日付,社員番号,従業員名,開始時刻,終了時刻\n";
+                $csv_data = mb_convert_encoding($csv_data, 'SJIS-win', 'UTF-8');
+
+                foreach ($rows as $row) {
                     $line = [
-                        $r['shift_date'],
-                        $r['username'],
-                        substr($r['start_time'], 0, 5),
-                        substr($r['end_time'], 0, 5)
+                        $row['shift_date'],
+                        $row['company_user_id'] ?? '',
+                        $row['username'],
+                        substr($row['start_time'], 0, 5),
+                        substr($row['end_time'], 0, 5)
                     ];
-                    $line = array_map(function($v){ return '"' . str_replace('"', '""', $v) . '"'; }, $line);
-                    $csv_data .= implode(',', $line) . "\n";
+                    $line = array_map(function($v){ return '"'.str_replace('"','""',$v).'"'; }, $line);
+                    $csv_data .= mb_convert_encoding(implode(',', $line) . "\n", 'SJIS-win', 'UTF-8');
                 }
 
                 // ファイル保存

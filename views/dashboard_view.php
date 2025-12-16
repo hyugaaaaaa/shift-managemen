@@ -5,6 +5,16 @@
     </div>
 
     <!-- お知らせセクション -->
+    <?php if (!empty($company_code)): ?>
+    <div class="alert alert-warning d-flex align-items-center shadow-sm" role="alert">
+        <i class="bi bi-star-fill me-2 text-warning fs-4"></i>
+        <div>
+            <strong>あなたの企業の招待コード:</strong> <span class="badge bg-dark fs-6 font-monospace ms-2 user-select-all"><?php echo htmlspecialchars($company_code); ?></span>
+            <span class="ms-2 small">このコードをスタッフに伝えて、登録を案内してください。</span>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <?php if (!empty($announcements)): ?>
     <div class="card mb-4">
         <div class="card-header bg-info text-white">

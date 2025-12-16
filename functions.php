@@ -15,7 +15,8 @@ use App\Utils\DateHelper;
  * @return mixed
  */
 function get_system_setting($pdo, $key, $default = null) {
-    return SystemSetting::get($pdo, $key, $default);
+    $company_id = get_current_company_id();
+    return SystemSetting::get($pdo, $key, $default, $company_id);
 }
 
 /**
@@ -68,7 +69,8 @@ function validate_csrf_token($token) {
  */
 function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id = null) {
     $service = new ShiftService();
-    return $service->getMergedWorkRecords($pdo, $start_date, $end_date, $target_user_id);
+    $company_id = get_current_company_id();
+    return $service->getMergedWorkRecords($pdo, $start_date, $end_date, $target_user_id, $company_id);
 }
 
 /**
@@ -134,6 +136,35 @@ function launch_background_process($script_path) {
         $cmd = $phpPath . ' ' . $script_path . ' > /dev/null 2>&1 &';
         exec($cmd);
     }
+}
+
+/**
+ * ユニークな招待コード（企業コード）を生成する
+ * @return string
+ */
+function generate_company_code() {
+    // 英数字ランダム8文字
+    return strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
+}
+
+/**
+ * 招待コードを検証し、有効であれば company_id を返す
+ * @param PDO $pdo
+ * @param string $code
+ * @return int|false
+ */
+function validate_company_code($pdo, $code) {
+    $stmt = $pdo->prepare("SELECT company_id FROM companies WHERE company_code = ?");
+    $stmt->execute([$code]);
+    return $stmt->fetchColumn(); 
+}
+
+/**
+ * 現在のコンテキスト（セッション等）から Company ID を取得する
+ * ログインしていない場合は null を返す
+ */
+function get_current_company_id() {
+    return $_SESSION['company_id'] ?? null;
 }
 
 

@@ -18,17 +18,17 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>社員番号</th>
                             <th>名前</th>
                             <th>時給</th>
-                            <th>交通費(日)</th>
+                            <th>交通費</th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($users as $user): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                            <td><?php echo htmlspecialchars($user['company_user_id'] ?? '-'); ?></td>
                             <td><?php echo htmlspecialchars($user['username']); ?></td>
                             <td>¥<?php echo number_format($user['hourly_rate']); ?></td>
                             <td>¥<?php echo number_format($user['transportation_expense']); ?></td>

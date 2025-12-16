@@ -19,10 +19,9 @@ $msg = '';
 // 現在は機能なし
 
 // 現在の設定取得
-// $stmt = $pdo->prepare("SELECT line_user_id FROM users WHERE user_id = ?");
-// $stmt->execute([$user_id]);
-// $user = $stmt->fetch();
-$user = []; // ダミー
+$stmt = $pdo->prepare("SELECT user_id, company_user_id, username, email FROM users WHERE user_id = ?");
+$stmt->execute([$user_id]);
+$user = $stmt->fetch();
 
 
 render_header('ユーザー設定');

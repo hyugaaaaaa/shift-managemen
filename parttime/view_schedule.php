@@ -29,9 +29,17 @@ $stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETW
 $stmt->execute([$min_date, $max_date]);
 $holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-// スケジュール取得 (指定月のみ)
-$stmt = $pdo->prepare('SELECT schedule_id, shift_date, start_time, end_time, created_at FROM shifts_scheduled WHERE user_id = ? AND shift_date BETWEEN ? AND ? ORDER BY shift_date ASC');
-$stmt->execute([$_SESSION['user_id'], $min_date, $max_date]);
+// 全体シフトデータ取得 (自社のみ)
+// shifts_scheduled と users を結合し、自社のユーザーのみに絞る
+$company_id = get_current_company_id();
+$sql = "SELECT s.*, u.username FROM shifts_scheduled s 
+        JOIN users u ON s.user_id = u.user_id 
+        WHERE s.shift_date BETWEEN ? AND ? 
+        AND u.company_id = ?
+        AND s.user_id = ?
+        ORDER BY s.shift_date ASC, s.start_time ASC";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$min_date, $max_date, $company_id, $_SESSION['user_id']]);
 $schedules = $stmt->fetchAll();
 
 // 表示用に日跨ぎシフトを分割して展開

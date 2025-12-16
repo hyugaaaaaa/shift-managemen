@@ -45,5 +45,12 @@ $current_deadline = get_system_setting($pdo, 'shift_submission_deadline_day', 25
 $current_closing_day = get_system_setting($pdo, 'closing_day', 31);
 $current_payment_day = get_system_setting($pdo, 'payment_day', 25);
 
+// 企業情報の取得
+$company_code = '';
+if (isset($_SESSION['company_id'])) {
+    $stmt = $pdo->prepare("SELECT company_code FROM companies WHERE company_id = ?");
+    $stmt->execute([$_SESSION['company_id']]);
+    $company_code = $stmt->fetchColumn() ?: '';
+}
 
 require_once __DIR__ . '/../views/owner/system_settings_view.php';

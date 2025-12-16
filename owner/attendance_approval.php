@@ -66,8 +66,9 @@ $start_date = "$month-01";
 $end_date = date('Y-m-t', strtotime($start_date));
 
 // ユーザー一覧取得
-$stmt = $pdo->prepare('SELECT user_id, username FROM users WHERE user_type = ? AND is_deleted = 0 ORDER BY username');
-$stmt->execute(['part-time']);
+$company_id = get_current_company_id();
+$stmt = $pdo->prepare('SELECT user_id, username FROM users WHERE user_type = ? AND is_deleted = 0 AND company_id = ? ORDER BY username');
+$stmt->execute(['part-time', $company_id]);
 $users = $stmt->fetchAll();
 
 // 全員の勤務実績取得

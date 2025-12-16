@@ -33,14 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $shift_date = $_POST['shift_date'] ?? '';
                 $start_time = $_POST['start_time'] ?? '';
                 $end_time = $_POST['end_time'] ?? '';
+                $company_id = get_current_company_id();
 
                 if (empty($target_user_id) || empty($shift_date) || empty($start_time) || empty($end_time)) {
                     throw new Exception('全ての項目を入力してください。');
                 }
 
-                // 定休日チェック
-                $stmt_holiday = $pdo->prepare("SELECT COUNT(*) FROM holidays WHERE holiday_date = ?");
-                $stmt_holiday->execute([$shift_date]);
+                // ユーザーが自社に所属しているかチェック
+                $stmt_usr = $pdo->prepare("SELECT COUNT(*) FROM users WHERE user_id = ? AND company_id = ?");
+                $stmt_usr->execute([$target_user_id, $company_id]);
+                if ($stmt_usr->fetchColumn() == 0) {
+                    throw new Exception('不正なユーザーIDです。');
+                }
+
+                // 定休日チェック (company_id考慮)
+                $stmt_holiday = $pdo->prepare("SELECT COUNT(*) FROM holidays WHERE holiday_date = ? AND company_id = ?");
+                $stmt_holiday->execute([$shift_date, $company_id]);
                 if ($stmt_holiday->fetchColumn() > 0) {
                     throw new Exception('指定された日付は定休日です。');
                 }
@@ -67,8 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             } else {
                 // 既存のアクション (approve, reject, cancel, update)
-                $stmt = $pdo->prepare('SELECT r.user_id, r.shift_date, r.start_time, r.end_time, u.email, u.username FROM shifts_requested r JOIN users u ON r.user_id = u.user_id WHERE r.request_id = ? FOR UPDATE');
-                $stmt->execute([$request_id]);
+                $company_id = get_current_company_id();
+                // ユーザーが自社に所属しているかも JOIN でチェック
+                $stmt = $pdo->prepare('SELECT r.user_id, r.shift_date, r.start_time, r.end_time, u.email, u.username FROM shifts_requested r JOIN users u ON r.user_id = u.user_id WHERE r.request_id = ? AND u.company_id = ? FOR UPDATE');
+                $stmt->execute([$request_id, $company_id]);
                 $req = $stmt->fetch();
 
                 if (!$req) {
@@ -82,9 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // 実際には replace_file_content でこのブロック全体を置換すると既存の中身が消えるので、
                     // 既存ロジックを再記述する必要がある。
                     
-                    // 定休日チェック
-                    $stmt_holiday = $pdo->prepare("SELECT COUNT(*) FROM holidays WHERE holiday_date = ?");
-                    $stmt_holiday->execute([$req['shift_date']]);
+                    // 定休日チェック (company_id考慮)
+                    $stmt_holiday = $pdo->prepare("SELECT COUNT(*) FROM holidays WHERE holiday_date = ? AND company_id = ?");
+                    $stmt_holiday->execute([$req['shift_date'], $company_id]);
                     if ($stmt_holiday->fetchColumn() > 0) {
                         throw new Exception('指定された日付は定休日です。承認できません。');
                     }
@@ -161,26 +171,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ユーザー一覧取得（新規登録用）
-$stmt_users = $pdo->prepare("SELECT user_id, username FROM users WHERE user_type = 'part-time' AND is_deleted = 0 ORDER BY username");
-$stmt_users->execute();
+$company_id = get_current_company_id();
+$stmt_users = $pdo->prepare("SELECT user_id, username FROM users WHERE user_type = 'part-time' AND is_deleted = 0 AND company_id = ? ORDER BY username");
+$stmt_users->execute([$company_id]);
 $users = $stmt_users->fetchAll();
 
 // リクエスト一覧取得（オプション: フィルタ）
 $filter = $_GET['filter'] ?? 'pending'; // pending/all/approved/rejected
+$company_id = get_current_company_id();
 $sql = 'SELECT r.request_id, r.user_id, r.shift_date, r.start_time, r.end_time, r.request_status, r.submitted_at, u.username
-        FROM shifts_requested r JOIN users u ON r.user_id = u.user_id';
-if ($filter === 'all') {
-    $sql .= ' ORDER BY r.request_status, r.shift_date';
-} else {
-    $sql .= ' WHERE r.request_status = ? ORDER BY r.shift_date';
+        FROM shifts_requested r JOIN users u ON r.user_id = u.user_id WHERE u.company_id = ?';
+
+if ($filter !== 'all') {
+    $sql .= ' AND r.request_status = ?';
 }
+$sql .= ' ORDER BY r.shift_date';
 
 if ($filter === 'all') {
     $stmt = $pdo->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$company_id]);
 } else {
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$filter]);
+    $stmt->execute([$company_id, $filter]);
 }
 $requests = $stmt->fetchAll();
 

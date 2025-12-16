@@ -31,20 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo->beginTransaction();
             
-            // 対象月の既存の定休日を削除
+            // 対象月の既存の定休日を削除 (自社のみ)
             $start_date = $month . '-01';
             $end_date = date('Y-m-t', strtotime($start_date));
+            $company_id = get_current_company_id();
             
-            $stmt = $pdo->prepare("DELETE FROM holidays WHERE holiday_date BETWEEN ? AND ?");
-            $stmt->execute([$start_date, $end_date]);
+            $stmt = $pdo->prepare("DELETE FROM holidays WHERE holiday_date BETWEEN ? AND ? AND company_id = ?");
+            $stmt->execute([$start_date, $end_date, $company_id]);
             
             // 新しい定休日を登録
             if (!empty($selected_dates)) {
-                $stmt = $pdo->prepare("INSERT INTO holidays (holiday_date, description) VALUES (?, '定休日')");
+                $stmt = $pdo->prepare("INSERT INTO holidays (company_id, holiday_date, description) VALUES (?, ?, '定休日')");
                 foreach ($selected_dates as $date) {
                     // 日付の形式チェック
                     if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-                        $stmt->execute([$date]);
+                        $stmt->execute([$company_id, $date]);
                     }
                 }
             }
@@ -59,11 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 現在の定休日データを取得
+// 現在の定休日データを取得 (自社のみ)
 $start_date = $month . '-01';
 $end_date = date('Y-m-t', strtotime($start_date));
-$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?");
-$stmt->execute([$start_date, $end_date]);
+$company_id = get_current_company_id();
+$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ? AND company_id = ?");
+$stmt->execute([$start_date, $end_date, $company_id]);
 $current_holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 require_once __DIR__ . '/../views/owner/holidays_view.php';

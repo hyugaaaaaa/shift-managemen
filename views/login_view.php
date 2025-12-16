@@ -33,7 +33,12 @@
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
       
       <div class="form-floating mb-3">
-        <input type="text" name="username" class="form-control" id="floatingInput" placeholder="ユーザー名" required autocomplete="off">
+        <input type="text" name="company_code" class="form-control" id="floatingCompanyCode" placeholder="企業コード" required autocomplete="organization">
+        <label for="floatingCompanyCode"><i class="bi bi-building me-1"></i> 企業コード</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input type="text" name="username" class="form-control" id="floatingInput" placeholder="ユーザー名" required autocomplete="username">
         <label for="floatingInput"><i class="bi bi-person me-1"></i> ユーザー名</label>
       </div>
       
@@ -52,14 +57,18 @@
       </div>
     </form>
     
-    <?php if(!empty($show_register_link) && $show_register_link): ?>
     <div class="mt-4 text-center border-top pt-3">
-        <p class="small text-muted mb-2">まだアカウントをお持ちでない場合</p>
-        <a href="register.php" class="btn btn-outline-success btn-sm rounded-pill px-3">
-            <i class="bi bi-person-plus me-1"></i>新規登録（初期設定）
-        </a>
+        <p class="small text-muted mb-3">まだアカウントをお持ちでない場合</p>
+        
+        <div class="d-grid gap-2 col-10 mx-auto">
+            <a href="register_company.php" class="btn btn-outline-primary btn-sm rounded-pill">
+                <i class="bi bi-building me-1"></i> 企業アカウントを作成 (オーナー)
+            </a>
+            <a href="register_staff.php" class="btn btn-outline-success btn-sm rounded-pill">
+                <i class="bi bi-person-badge me-1"></i> アルバイトとして登録 (招待あり)
+            </a>
+        </div>
     </div>
-    <?php endif; ?>
   </div>
 </div>
 

@@ -49,15 +49,27 @@ class ShiftService
      * @param int|null $target_user_id 特定ユーザーのみ取得する場合に指定
      * @return array [user_id => [date => record]]
      */
-    public function getMergedWorkRecords(PDO $pdo, string $start_date, string $end_date, ?int $target_user_id = null): array
+    public function getMergedWorkRecords(PDO $pdo, string $start_date, string $end_date, ?int $target_user_id = null, ?int $company_id = null): array
     {
         // 1. シフト予定の取得
-        $sql_sched = "SELECT * FROM shifts_scheduled WHERE shift_date BETWEEN ? AND ?";
+        // UsersテーブルとJOINしてCompany IDでフィルタリング
+        $sql_sched = "
+            SELECT s.* 
+            FROM shifts_scheduled s
+            JOIN users u ON s.user_id = u.user_id
+            WHERE s.shift_date BETWEEN ? AND ?
+        ";
         $params_sched = [$start_date, $end_date];
+        
+        if ($company_id) {
+            $sql_sched .= " AND u.company_id = ?";
+            $params_sched[] = $company_id;
+        }
         if ($target_user_id) {
-            $sql_sched .= " AND user_id = ?";
+            $sql_sched .= " AND s.user_id = ?";
             $params_sched[] = $target_user_id;
         }
+        
         $stmt = $pdo->prepare($sql_sched);
         $stmt->execute($params_sched);
         
@@ -78,12 +90,23 @@ class ShiftService
         }
 
         // 2. 勤怠実績の取得
-        $sql_att = "SELECT * FROM attendance_records WHERE date BETWEEN ? AND ?";
+        $sql_att = "
+            SELECT a.* 
+            FROM attendance_records a
+            JOIN users u ON a.user_id = u.user_id
+            WHERE a.date BETWEEN ? AND ?
+        ";
         $params_att = [$start_date, $end_date];
+        
+        if ($company_id) {
+            $sql_att .= " AND u.company_id = ?";
+            $params_att[] = $company_id;
+        }
         if ($target_user_id) {
-            $sql_att .= " AND user_id = ?";
+            $sql_att .= " AND a.user_id = ?";
             $params_att[] = $target_user_id;
         }
+        
         $stmt = $pdo->prepare($sql_att);
         $stmt->execute($params_att);
         

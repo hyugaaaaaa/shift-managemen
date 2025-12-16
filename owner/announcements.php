@@ -31,16 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     // DB保存
-                    $stmt = $pdo->prepare("INSERT INTO announcements (title, content) VALUES (?, ?)");
-                    $stmt->execute([$title, $content]);
+                    $company_id = get_current_company_id();
+                    $stmt = $pdo->prepare("INSERT INTO announcements (company_id, title, content) VALUES (?, ?, ?)");
+                    $stmt->execute([$company_id, $title, $content]);
                     $msg = 'お知らせを作成しました。';
 
                     // メール送信処理
                     $target = $_POST['target'] ?? 'all';
                     $target_month = $_POST['target_month'] ?? ''; // YYYY-MM
                     
-                    $sql = "SELECT email, username, user_id FROM users WHERE user_type = 'part-time' AND is_deleted = 0 AND email IS NOT NULL AND email != ''";
-                    $params = [];
+                    $company_id = get_current_company_id();
+                    $sql = "SELECT email, username, user_id FROM users WHERE user_type = 'part-time' AND is_deleted = 0 AND email IS NOT NULL AND email != '' AND company_id = ?";
+                    $params = [$company_id];
 
                     if ($target === 'unsubmitted' && !empty($target_month)) {
                         // 指定月(初日〜末日)にシフト希望(shifts_requested)を出していないユーザー
@@ -99,8 +101,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     // プレースホルダー作成
                     $in  = str_repeat('?,', count($delete_ids) - 1) . '?';
-                    $stmt = $pdo->prepare("DELETE FROM announcements WHERE id IN ($in)");
-                    $stmt->execute($delete_ids);
+                    $company_id = get_current_company_id();
+                    // 他社のお知らせを消さないように company_id チェック追加
+                    // DELETE FROM ... WHERE id IN (...) AND company_id = ?
+                    // IN句の後にパラメータを追加する必要がある。
+                    
+                    $sql = "DELETE FROM announcements WHERE id IN ($in) AND company_id = ?";
+                    $params = $delete_ids;
+                    $params[] = $company_id;
+                    
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($params);
                     $msg = 'お知らせを削除しました。';
                 } catch (Exception $e) {
                     $error = '削除に失敗しました: ' . $e->getMessage();
@@ -112,8 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// お知らせ一覧取得
-$stmt = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC");
+//のお知らせ一覧取得 (自社のみ)
+$company_id = get_current_company_id();
+$stmt = $pdo->prepare("SELECT * FROM announcements WHERE company_id = ? ORDER BY created_at DESC");
+$stmt->execute([$company_id]);
 $announcements = $stmt->fetchAll();
 
 render_header('お知らせ管理');

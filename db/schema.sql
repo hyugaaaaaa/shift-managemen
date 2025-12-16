@@ -1,11 +1,26 @@
--- MySQL / MariaDB 用スキーマ定義
+-- MySQL / MariaDB 用スキーマ定義 (Updated for Multi-Tenant)
 CREATE DATABASE IF NOT EXISTS shift_management CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE shift_management;
 
+-- 企業テーブル (Multi-Tenant Root)
+CREATE TABLE IF NOT EXISTS `companies` (
+  `company_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `company_name` VARCHAR(100) NOT NULL,
+  `company_code` VARCHAR(20) NOT NULL UNIQUE,
+  `representative_name` VARCHAR(100),
+  `address` VARCHAR(255),
+  `phone_number` VARCHAR(20),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`company_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ユーザーテーブル
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(100) NOT NULL UNIQUE,
-  `email` VARCHAR(255) UNIQUE,
+  `company_id` INT UNSIGNED NOT NULL,
+  `company_user_id` INT UNSIGNED DEFAULT NULL, -- 企業内での連番ID (従業員番号)
+  `username` VARCHAR(100) NOT NULL, -- Global UniqueではなくCompany内Unique
+  `email` VARCHAR(255), -- NULL許容
   `password_hash` VARCHAR(255) NOT NULL,
   `user_type` ENUM('owner','part-time') NOT NULL DEFAULT 'part-time',
   `hourly_rate` DECIMAL(8,2) NOT NULL DEFAULT 1000.00,
@@ -15,10 +30,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
   `login_attempts` INT DEFAULT 0,
   `locked_until` DATETIME DEFAULT NULL,
+  `is_agreed_terms` TINYINT(1) NOT NULL DEFAULT 0,
+  `agreed_terms_at` DATETIME DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`)
+  PRIMARY KEY (`user_id`),
+  FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_company_username` (`company_id`, `username`),
+  UNIQUE KEY `unique_email_company` (`email`, `company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- シフト希望
 CREATE TABLE IF NOT EXISTS `shifts_requested` (
   `request_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
@@ -32,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `shifts_requested` (
   CONSTRAINT `fk_req_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 確定シフト
 CREATE TABLE IF NOT EXISTS `shifts_scheduled` (
   `schedule_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
@@ -44,18 +66,16 @@ CREATE TABLE IF NOT EXISTS `shifts_scheduled` (
   CONSTRAINT `fk_sched_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- サンプル初期ユーザー（パスワードは PHP の password_hash() で生成したものに置き換えてください）
--- INSERT INTO users (username,password_hash,user_type) VALUES ('owner1', '$2y$10$...replace_with_hash...', 'owner');
-
+-- システム設定 (Company Scope)
 CREATE TABLE IF NOT EXISTS `system_settings` (
+  `company_id` INT UNSIGNED NOT NULL,
   `setting_key` VARCHAR(50) NOT NULL,
   `setting_value` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`setting_key`)
+  PRIMARY KEY (`company_id`, `setting_key`),
+  FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 初期設定投入
-INSERT IGNORE INTO `system_settings` (`setting_key`, `setting_value`) VALUES ('closing_day', '15'), ('payment_day', '25');
-
+-- 勤怠記録
 CREATE TABLE IF NOT EXISTS `attendance_records` (
   `attendance_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` INT UNSIGNED NOT NULL,
@@ -73,14 +93,6 @@ CREATE TABLE IF NOT EXISTS `attendance_records` (
   FOREIGN KEY (`schedule_id`) REFERENCES `shifts_scheduled`(`schedule_id`) ON DELETE SET NULL,
   UNIQUE KEY `unique_user_date` (`user_id`, `date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Phase 2 Migrations
--- Usersテーブル拡張
--- ALTER TABLE users ADD COLUMN email VARCHAR(255) UNIQUE AFTER username;
--- ALTER TABLE users ADD COLUMN payslip_consent TINYINT(1) NOT NULL DEFAULT 0;
--- ALTER TABLE users ADD COLUMN payslip_consent_date DATETIME DEFAULT NULL;
--- ※新規インストールのために users テーブル定義を更新する場合は上記 ALTER ではなく CREATE TABLE を修正すべきだが、
---   ここでは既存の CREATE TABLE を修正しつつ、追加テーブルを定義する。
 
 -- スキル管理
 CREATE TABLE IF NOT EXISTS `skills` (
@@ -129,6 +141,7 @@ CREATE TABLE IF NOT EXISTS `operation_logs` (
 CREATE TABLE IF NOT EXISTS `password_resets` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `email` VARCHAR(255) NOT NULL,
+  `company_id` INT UNSIGNED NOT NULL,
   `token` VARCHAR(255) NOT NULL,
   `expires_at` DATETIME NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -139,6 +152,7 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
 -- お知らせ
 CREATE TABLE IF NOT EXISTS `announcements` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `company_id` INT UNSIGNED NOT NULL,
     `title` VARCHAR(255) NOT NULL,
     `content` TEXT NOT NULL,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -160,7 +174,6 @@ CREATE TABLE IF NOT EXISTS `holidays` (
     `description` VARCHAR(255),
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- メール送信キュー
 CREATE TABLE IF NOT EXISTS `mail_queue` (

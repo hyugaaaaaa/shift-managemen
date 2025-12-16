@@ -10,6 +10,33 @@
         <div class="alert alert-success"><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>
 
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0"><i class="bi bi-building"></i> 企業情報 / 招待コード</h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="mb-1"><strong>現在の招待コード:</strong></p>
+                    <div class="display-6 monospace fw-bold text-dark bg-light border p-2 rounded d-inline-block">
+                        <?php echo htmlspecialchars($company_code ?? '---'); ?>
+                    </div>
+                    <p class="text-muted small mt-2">
+                        このコードをスタッフに共有してください。スタッフはこのコードを使って登録できます。
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <form method="post" action="regenerate_code.php" onsubmit="return confirm('招待コードを再発行しますか？\n\n・古いコードは即座に無効になります。\n・既にこのコードを持っているスタッフに新しいコードを伝え直す必要があります。\n・既存のスタッフ登録には影響しません。');">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-arrow-repeat"></i> 招待コードを再発行する
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-header bg-light">
             <h5 class="card-title mb-0">シフト提出設定</h5>

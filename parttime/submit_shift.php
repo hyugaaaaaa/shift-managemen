@@ -125,7 +125,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_past_deadline){
     // 時刻フォーマットを合わせるために秒まで指定するか、LIKE検索にするか検討が必要だが、
     // HTML5のtime inputは通常 HH:MM を返すが、DBが HH:MM:SS の場合を考慮して、
     // ここでは入力値に秒(:00)を付加して比較するか、DB側で比較する。
-    // 一般的には time型カラムへのINSERT時は HH:MM でも通るが、SELECT時は HH:MM:SS で返ることが多い。
     // ここでは厳密な一致を見るため、入力値が HH:MM なら HH:MM:00 として扱うなどの正規化を行うのが安全だが、
     // 簡易的に、入力値をそのままバインドして、DB側でキャスト比較させる（MySQLは自動でよしなにやってくれることが多い）。
     // ただし、念のため入力値に秒がない場合は付与する処理を入れるとより確実。
@@ -133,13 +132,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_past_deadline){
     $check_start = (strlen($start_time) === 5) ? $start_time . ':00' : $start_time;
     $check_end = (strlen($end_time) === 5) ? $end_time . ':00' : $end_time;
 
-    $stmt->execute([$_SESSION['user_id'], $shift_date, $check_start, $check_end]);
+    $stmt->execute([$_SESSION['user_id'], $shift_date, $check_start, $check_end, $company_id]);
     if ($stmt->fetchColumn() > 0) {
         $error = '指定されたシフトは既に提出済みです。';
     } else {
         // データベースへの登録処理
         // request_status は 'pending'（承認待ち）として登録
-        $stmt = $pdo->prepare('INSERT INTO shifts_requested (user_id, shift_date, start_time, end_time, request_status) VALUES (?, ?, ?, ?, ? )');
+        $stmt = $pdo->prepare('INSERT INTO shifts_requested (user_id, shift_date, start_time, end_time, request_status) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([$_SESSION['user_id'], $shift_date, $start_time, $end_time, 'pending']);
         
         // PRGパターン: セッションにメッセージを保存してリダイレクト

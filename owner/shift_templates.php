@@ -30,9 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'すべての項目を入力してください。';
             } else {
                 try {
-                    $stmt = $pdo->prepare("INSERT INTO shift_templates (template_name, start_time, end_time) VALUES (?, ?, ?)");
-                    $stmt->execute([$name, $start, $end]);
-                    $msg = 'シフトパターンを追加しました。';
+                    $company_id = get_current_company_id();
+                    $stmt = $pdo->prepare("INSERT INTO shift_templates (company_id, template_name, start_time, end_time) VALUES (?, ?, ?, ?)");
+                    $stmt->execute([$company_id, $name, $start, $end]);
+                    $msg = 'テンプレートを追加しました。';
                 } catch (Exception $e) {
                     $error = '追加に失敗しました: ' . $e->getMessage();
                 }
@@ -41,9 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = intval($_POST['template_id'] ?? 0);
             if ($id > 0) {
                 try {
-                    $stmt = $pdo->prepare("DELETE FROM shift_templates WHERE template_id = ?");
-                    $stmt->execute([$id]);
-                    $msg = 'シフトパターンを削除しました。';
+                    $company_id = get_current_company_id();
+                    // 自社のテンプレートのみ削除可能
+                    $stmt = $pdo->prepare("DELETE FROM shift_templates WHERE template_id = ? AND company_id = ?");
+                    $stmt->execute([$id, $company_id]);
+                    $msg = 'テンプレートを削除しました。';
                 } catch (Exception $e) {
                     $error = '削除に失敗しました: ' . $e->getMessage();
                 }
@@ -52,8 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// テンプレート一覧取得
-$stmt = $pdo->query("SELECT * FROM shift_templates ORDER BY created_at DESC");
+// テンプレート// 一覧取得 (自社のみ)
+$company_id = get_current_company_id();
+$stmt = $pdo->prepare("SELECT * FROM shift_templates WHERE company_id = ? ORDER BY created_at DESC");
+$stmt->execute([$company_id]);
 $templates = $stmt->fetchAll();
 
 require_once __DIR__ . '/../views/owner/shift_templates_view.php';
