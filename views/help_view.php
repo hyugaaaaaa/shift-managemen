@@ -50,7 +50,8 @@ render_header('ヘルプ'); ?>
                             <div class="mb-4">
                                 <h5 class="fw-bold"><i class="bi bi-box-arrow-in-right text-success me-2"></i>ログイン・ログアウト</h5>
                                 <p class="text-muted ms-4">
-                                    システムを利用するには、IDとパスワードを入力してログインしてください。<br>
+                                    システムを利用するには、<strong>企業コード</strong>、<strong>ユーザー名</strong>、<strong>パスワード</strong>を入力してログインしてください。<br>
+                                    一度ログインすると、企業コードは一定期間保存されます。
                                     利用が終わったら、画面右上のメニューから「ログアウト」を選択して終了してください。安全のため、共有PCでは必ずログアウトを行ってください。
                                 </p>
                             </div>
@@ -153,7 +154,7 @@ render_header('ヘルプ'); ?>
                         <div class="card-body text-center p-4">
                             <i class="bi bi-list-check fs-1 text-primary mb-3"></i>
                             <h5 class="fw-bold">希望一覧・シフト作成</h5>
-                            <p class="text-muted small">スタッフから提出された希望をもとに、シフトを作成・調整し、確定させます。</p>
+                            <p class="text-muted small">スタッフから提出された希望をもとに、シフトを作成・調整し、確定させます。シフトテンプレートを利用すると定型シフトを簡単に入力できます。</p>
                         </div>
                     </div>
                 </div>
@@ -181,7 +182,7 @@ render_header('ヘルプ'); ?>
                             <i class="bi bi-gear fs-2 text-secondary me-3"></i>
                             <div>
                                 <h5 class="fw-bold">システム設定</h5>
-                                <p class="text-muted mb-0">給与の締め日、支払日、シフト提出期限などを店舗のルールに合わせて設定します。</p>
+                                <p class="text-muted mb-0">給与の締め日、支払日、シフト提出期限、<strong>パスワードポリシー</strong>（最小文字数など）を店舗のルールに合わせて設定します。</p>
                             </div>
                         </div>
                     </div>
@@ -193,6 +194,18 @@ render_header('ヘルプ'); ?>
                             <div>
                                 <h5 class="fw-bold">データ出力</h5>
                                 <p class="text-muted mb-0">給与データやシフト表をCSV形式でダウンロードし、保管や他システム連携に利用できます。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 追加機能: お知らせ・定休日 -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-start p-4">
+                            <i class="bi bi-megaphone fs-2 text-warning me-3"></i>
+                            <div>
+                                <h5 class="fw-bold">お知らせ・定休日管理</h5>
+                                <p class="text-muted mb-0">スタッフへのお知らせ配信（メール通知可）や、店舗の定休日設定を行えます。</p>
                             </div>
                         </div>
                     </div>
@@ -213,8 +226,8 @@ render_header('ヘルプ'); ?>
                             </h2>
                             <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                                 <div class="accordion-body bg-light text-muted">
-                                    <strong>A.</strong> オーナー（管理者）に連絡して、パスワードの再設定（リセット）を依頼してください。<br>
-                                    セキュリティ上の理由から、ユーザー自身によるパスワードリセット機能は現在提供しておりません。
+                                    <strong>A.</strong> ログイン画面の「パスワードをお忘れですか？」リンクから、パスワードリセット手続きを行ってください（メールアドレスの登録が必要です）。<br>
+                                    メールアドレスが未登録の場合や、リンクから操作できない場合は、オーナー（管理者）に連絡してください。
                                 </div>
                             </div>
                         </div>

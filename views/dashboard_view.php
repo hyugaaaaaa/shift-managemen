@@ -131,10 +131,11 @@
                                 }
                                 
                                 if (!empty($shifts_by_date[$date])) {
-                                    $count = count($shifts_by_date[$date]);
                                     // シフトあり表示（件数またはドット）
                                     if ($_SESSION['user_type'] === 'owner') {
-                                        echo '<div class="text-primary small"><i class="bi bi-people-fill"></i> ' . $count . '名</div>';
+                                        // ユニークなユーザー数を表示
+                                        $uniqueCount = isset($unique_users_by_date[$date]) ? count($unique_users_by_date[$date]) : 0;
+                                        echo '<div class="text-primary small fw-bold"><i class="bi bi-people-fill"></i> ' . $uniqueCount . '名</div>';
                                     } else {
                                         // 自分のシフトのみバッジ表示
                                         foreach ($shifts_by_date[$date] as $s) {
@@ -340,7 +341,7 @@
                 }
             ?>
             <div class="<?php echo $cellClass; ?> <?php echo $dowClass; ?>" 
-                 onclick="selectDate(this, '<?php echo intval(substr($currentDate, 8, 2)); ?>日 (<?php echo ['日','月','火','水','木','金','土'][$dayOfWeek]; ?>)', '<?php echo htmlspecialchars($detailHtml, ENT_QUOTES); ?>')"
+                 onclick="selectDate(this, '<?php echo intval(substr($currentDate, 8, 2)); ?>日 (<?php echo ['日','月','火','水','木','金','土'][$dayOfWeek]; ?> )', '<?php echo htmlspecialchars($detailHtml, ENT_QUOTES); ?>')"
                  id="cell-<?php echo $currentDate; ?>">
                 
                 <span class="mobile-grid-date"><?php echo intval(substr($currentDate, 8, 2)); ?></span>
@@ -349,8 +350,17 @@
                     <?php if ($is_holiday): ?>
                         <div class="mobile-dot dot-holiday"></div>
                     <?php endif; ?>
-                    <?php if ($has_my_shift): ?>
-                        <div class="mobile-dot dot-shift"></div>
+                    
+                    <?php if ($_SESSION['user_type'] === 'owner'): ?>
+                        <?php if ($has_any_shift): 
+                            $uniqueCount = isset($unique_users_by_date[$currentDate]) ? count($unique_users_by_date[$currentDate]) : 0;
+                        ?>
+                            <div class="mobile-staff-count"><?php echo $uniqueCount; ?></div>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <?php if ($has_my_shift): ?>
+                            <div class="mobile-dot dot-shift"></div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>

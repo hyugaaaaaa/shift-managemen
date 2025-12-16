@@ -33,7 +33,8 @@
             <div class="company-name">株式会社シフトマネジメント</div>
         </div>
         <div class="text-end">
-            <div style="font-size: 0.9rem; opacity: 0.9;">支給年月</div>
+            <div class="payslip-employee-name"><?php echo htmlspecialchars($user['username']); ?> 様</div>
+            <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 0.5rem;">支給年月</div>
             <div style="font-size: 1.5rem; font-weight: 700;"><?php echo date('Y年n月', strtotime($target_month . '-01')); ?></div>
         </div>
     </div>

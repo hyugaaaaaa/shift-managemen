@@ -122,7 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $stmt->execute([$id]);
                         $user = $stmt->fetch();
                     }
-                } catch (Exception $e) {
+                }
+            } catch (Exception $e) {
                 $error = 'エラーが発生しました: ' . $e->getMessage();
             }
         }

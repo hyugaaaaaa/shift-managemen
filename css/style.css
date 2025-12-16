@@ -1511,3 +1511,584 @@ body {
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
 }
+
+/* ========================================= */
+/* RESPONSIVE DESIGN IMPROVEMENTS */
+/* ========================================= */
+
+/* Fluid Typography using clamp() */
+.page-title {
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+}
+
+.payslip-title {
+    font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+}
+
+.login-title {
+    font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+}
+
+/* ========================================= */
+/* Mobile First: 480px and below (Small Phones) */
+/* ========================================= */
+@media (max-width: 480px) {
+
+    /* Ultra compact layout */
+    .page-container {
+        padding: 0 10px;
+        margin: 15px auto;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Stack buttons vertically */
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Compact table headers */
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    /* Smaller modals */
+    .modal-body {
+        padding: 1rem;
+    }
+
+    /* Compact form labels */
+    .form-label {
+        font-size: 0.85rem;
+    }
+}
+
+/* ========================================= */
+/* Tablet Portrait: 481px - 768px */
+/* ========================================= */
+@media (min-width: 481px) and (max-width: 768px) {
+    .page-container {
+        padding: 0 20px;
+    }
+
+    /* Two-column grid for cards */
+    .row.g-4 .col-md-6 {
+        width: 50%;
+        float: left;
+    }
+
+    /* Optimize calendar for medium screens */
+    .mobile-calendar-grid {
+        gap: 6px;
+    }
+
+    .mobile-grid-cell {
+        font-size: 1rem;
+    }
+}
+
+/* ========================================= */
+/* Tablet Landscape: 769px - 1024px */
+/* ========================================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .page-container {
+        max-width: 960px;
+        padding: 0 30px;
+    }
+
+    /* Optimize sidebar layouts */
+    .col-md-3 {
+        width: 30%;
+    }
+
+    .col-md-9 {
+        width: 70%;
+    }
+
+    /* Slightly smaller cards */
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    /* Calendar optimization */
+    .calendar-cell {
+        height: 90px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ========================================= */
+/* Small Desktop: 1025px - 1200px */
+/* ========================================= */
+@media (min-width: 1025px) and (max-width: 1200px) {
+    .page-container {
+        max-width: 1100px;
+    }
+
+    /* Optimize for smaller desktop screens */
+    .calendar-cell {
+        height: 95px;
+    }
+}
+
+/* ========================================= */
+/* TABLE RESPONSIVE IMPROVEMENTS */
+/* ========================================= */
+
+/* Wrapper for horizontal scroll on mobile */
+.table-responsive-mobile {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+
+    /* Enable horizontal scroll for all tables */
+    .table-responsive-mobile {
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+    }
+
+    /* Alternative: Card-based table layout */
+    .table-mobile-card {
+        display: block;
+    }
+
+    .table-mobile-card thead {
+        display: none;
+    }
+
+    .table-mobile-card tbody {
+        display: block;
+    }
+
+    .table-mobile-card tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 1rem;
+        background: #fff;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .table-mobile-card td {
+        display: block;
+        text-align: left;
+        border: none;
+        padding: 0.5rem 0;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .table-mobile-card td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    /* Compact pagination */
+    .pagination {
+        font-size: 0.85rem;
+    }
+
+    .pagination .page-link {
+        padding: 0.4rem 0.6rem;
+    }
+}
+
+/* ========================================= */
+/* NAVIGATION IMPROVEMENTS */
+/* ========================================= */
+@media (max-width: 768px) {
+
+    /* Improve navbar collapse */
+    .navbar-collapse {
+        background: linear-gradient(135deg, rgba(78, 115, 223, 0.95) 0%, rgba(34, 74, 190, 0.95) 100%);
+        margin: 10px -15px 0;
+        padding: 15px;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar-nav {
+        gap: 5px;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link:active {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Improve toggler button */
+    .navbar-toggler {
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        padding: 0.5rem 0.75rem;
+    }
+
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+    }
+}
+
+/* ========================================= */
+/* FORM IMPROVEMENTS */
+/* ========================================= */
+@media (max-width: 768px) {
+
+    /* Stack form groups vertically */
+    .row .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    /* Full-width buttons on mobile */
+    .btn-group-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-group-mobile .btn {
+        width: 100%;
+    }
+
+    /* Improve select dropdowns */
+    .form-select {
+        background-size: 16px 12px;
+        padding-right: 2.5rem;
+    }
+}
+
+/* ========================================= */
+/* CARD IMPROVEMENTS */
+/* ========================================= */
+@media (max-width: 768px) {
+
+    /* Reduce card padding on mobile */
+    .card-header {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    /* Stack card actions vertically */
+    .card-header .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Compact card footers */
+    .card-footer {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* ========================================= */
+/* ACCESSIBILITY IMPROVEMENTS */
+/* ========================================= */
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Skip to main content link */
+.skip-to-main {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 9999;
+}
+
+.skip-to-main:focus {
+    top: 0;
+}
+
+/* Improve contrast for better readability */
+@media (prefers-contrast: high) {
+    :root {
+        --text-color: #000;
+        --text-muted: #333;
+        --border-color: #000;
+    }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ========================================= */
+/* PRINT IMPROVEMENTS */
+/* ========================================= */
+@media print {
+
+    /* Hide interactive elements */
+    .navbar,
+    .btn,
+    .bottom-nav,
+    .btn-mobile-fab,
+    .no-print,
+    .navbar-toggler {
+        display: none !important;
+    }
+
+    /* Expand all collapsed content */
+    .collapse {
+        display: block !important;
+        height: auto !important;
+    }
+
+    /* Remove shadows and backgrounds */
+    .card,
+    .modal-content {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+
+    /* Ensure links are visible */
+    a[href]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666;
+    }
+
+    /* Don't show link URLs for internal navigation */
+    a[href^="#"]::after,
+    a[href^="javascript:"]::after {
+        content: "";
+    }
+}
+
+/* ========================================= */
+/* PERFORMANCE OPTIMIZATIONS */
+/* ========================================= */
+
+/* Use GPU acceleration for animations */
+.card:hover,
+.btn:hover,
+.mobile-grid-cell {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* Optimize font rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Lazy load images (if using) */
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+img[loading="lazy"].loaded {
+    opacity: 1;
+}
+
+/* ========================================= */
+/* SHIFT REQUEST CARDS */
+/* ========================================= */
+
+/* Avatar Circle */
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* Hover Shadow Effect */
+.hover-shadow {
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hover-shadow:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Shift Time Display */
+.shift-time-display {
+    background: linear-gradient(135deg, #f8f9fc 0%, #e9ecef 100%);
+    border: 1px solid var(--border-color);
+}
+
+/* Transition Utility */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* Status Border Colors */
+.border-warning {
+    border-left-color: var(--warning-color) !important;
+}
+
+.border-success {
+    border-left-color: var(--success-color) !important;
+}
+
+.border-danger {
+    border-left-color: var(--danger-color) !important;
+}
+
+/* Enhanced Badge with Icons */
+.badge.d-flex {
+    padding: 0.5em 0.75em;
+    font-size: 0.85rem;
+}
+
+/* Mobile Responsive Adjustments for Shift Cards */
+@media (max-width: 768px) {
+    .avatar-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+
+    .shift-time-display {
+        padding: 1rem !important;
+    }
+
+    .shift-time-display .fs-5 {
+        font-size: 1rem !important;
+    }
+}
+
+/* ========================================= */
+/* FILTER BUTTONS FIX */
+/* ========================================= */
+
+/* Ensure filter buttons stay horizontal */
+.btn-group {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+.btn-group>.btn {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/* Mobile adjustments for filter buttons */
+@media (max-width: 576px) {
+    .btn-group>.btn {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .btn-group>.btn i {
+        display: none;
+        /* Hide icons on very small screens */
+    }
+}
+
+/* ========================================= */
+/* MOBILE STAFF COUNT */
+/* ========================================= */
+
+.mobile-staff-count {
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+/* ========================================= */
+/* MONTHLY HOURS MOBILE CARDS */
+/* ========================================= */
+
+.monthly-stat-item {
+    background: var(--bg-color);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.monthly-stat-item .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.monthly-stat-item .stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.total-pay-mobile {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ========================================= */
+/* PAYSLIP EMPLOYEE NAME */
+/* ========================================= */
+
+.payslip-employee-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+@media print {
+    .payslip-employee-name {
+        color: #000;
+    }
+}

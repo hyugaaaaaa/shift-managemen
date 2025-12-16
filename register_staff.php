@@ -36,15 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = '利用規約とプライバシーポリシーへの同意が必要です。';
     } elseif ($password !== $confirm_password) {
         $error = 'パスワードが一致しません。';
-    } elseif (strlen($password) < 8) {
-        $error = 'パスワードは8文字以上で設定してください。';
     } else {
         // 招待コード検証
         $company_id = validate_company_code($pdo, $company_code);
         if (!$company_id) {
             $error = '無効な招待コードです。正しいコードを入力してください。';
         } else {
-            try {
+            // Check Password Policy
+            $policy_msg = validate_password_policy($password, $company_id);
+            if ($policy_msg !== true) {
+                $error = $policy_msg;
+            } else {
+                try {
                 // Check username uniqueness (global) - Removed to allow multiple users with same name
                 // $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
                 // ... (削除)
@@ -103,6 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 } else {
                     $error = $e->getMessage();
+                }
+            }
                 }
             }
         }

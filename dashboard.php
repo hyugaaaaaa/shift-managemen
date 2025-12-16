@@ -25,8 +25,8 @@ $endOfMonth = date('Y-m-t', strtotime($startOfMonth));
 $pdo = getPDO();
 
 // 最新のお知らせ取得（3件）
-// TODO: お知らせも会社ごとに分離する必要があるが、現状は全社共通または未対応
-$stmt_news = $pdo->query("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 3");
+$stmt_news = $pdo->prepare("SELECT * FROM announcements WHERE company_id = ? ORDER BY created_at DESC LIMIT 3");
+$stmt_news->execute([$_SESSION['company_id']]);
 $announcements = $stmt_news->fetchAll();
 
 // シフトデータの取得
@@ -45,11 +45,13 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$startOfMonth, $endOfMonth, $_SESSION['company_id']]);
 $rows = $stmt->fetchAll();
 
+// デバッグ: 取得したシフト数
+error_log("Dashboard: Found " . count($rows) . " shifts for company_id: " . $_SESSION['company_id'] . " between " . $startOfMonth . " and " . $endOfMonth);
+
 // 定休日の取得
-$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?"); // holidaysテーブルにcompany_idがない場合は全社共通？要確認
-// holidaysテーブルを確認していないが、会社ごとの設定ならcompany_idが必要。
-// 今回は一旦既存のままにするが、シフトは確実に分離する。
-$stmt->execute([$startOfMonth, $endOfMonth]);
+// 定休日の取得
+$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ? AND company_id = ?");
+$stmt->execute([$startOfMonth, $endOfMonth, $_SESSION['company_id']]);
 $holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 // オーナーの場合、招待コードを取得
@@ -62,10 +64,20 @@ if (($_SESSION['user_type'] ?? '') === 'owner') {
 
 // 日付ごとの配列に整理
 $shifts_by_date = [];
+$unique_users_by_date = []; // 日付ごとのユニークなユーザー数をカウント
+
 foreach ($rows as $r) {
   $d = $r['shift_date'];
   $start = substr($r['start_time'],0,8);
   $end = substr($r['end_time'],0,8);
+  
+  // ユニークユーザーのカウント
+  if (!isset($unique_users_by_date[$d])) {
+      $unique_users_by_date[$d] = [];
+  }
+  if (!in_array($r['user_id'], $unique_users_by_date[$d])) {
+      $unique_users_by_date[$d][] = $r['user_id'];
+  }
   
   // 日跨ぎ（終業時間が開始時間と同じか前）を判定
   if (strtotime($end) <= strtotime($start)) {
@@ -85,6 +97,14 @@ foreach ($rows as $r) {
     $r2['note'] = '(退勤)';
     if (!isset($shifts_by_date[$nextDate])) $shifts_by_date[$nextDate] = [];
     $shifts_by_date[$nextDate][] = $r2;
+    
+    // 翌日もユニークユーザーにカウント（退勤のため）
+    if (!isset($unique_users_by_date[$nextDate])) {
+        $unique_users_by_date[$nextDate] = [];
+    }
+    if (!in_array($r['user_id'], $unique_users_by_date[$nextDate])) {
+        $unique_users_by_date[$nextDate][] = $r['user_id'];
+    }
   } else {
     // 通常シフト
     $r['display_start'] = substr($start,0,5);
@@ -99,6 +119,9 @@ $prev = date('Y-n', strtotime($startOfMonth.' -1 month'));
 $next = date('Y-n', strtotime($startOfMonth.' +1 month'));
 list($py, $pm) = explode('-', $prev);
 list($ny, $nm) = explode('-', $next);
+
+// デバッグ: ユニークユーザー数の確認
+error_log("Unique users by date: " . print_r($unique_users_by_date, true));
 
 // ビューの読み込み
 require_once __DIR__ . '/views/dashboard_view.php';

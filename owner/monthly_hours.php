@@ -30,13 +30,15 @@ $start_date = $start_date_obj->format('Y-m-d');
 $end_date_obj = new DateTime("$year-$month-$closing_day");
 $end_date = $end_date_obj->format('Y-m-d');
 
-// ユーザー一覧取得
-$stmt = $pdo->prepare('SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = ? AND is_deleted = 0 ORDER BY username');
-$stmt->execute(['part-time']);
+// ユーザー一覧取得（自社のユーザーのみ）
+$company_id = $_SESSION['company_id'];
+$stmt = $pdo->prepare('SELECT user_id, username, hourly_rate, transportation_expense FROM users WHERE user_type = ? AND is_deleted = 0 AND company_id = ? ORDER BY username');
+$stmt->execute(['part-time', $company_id]);
 $users = $stmt->fetchAll();
 
-// 勤務実績データ取得（予定と実績のマージ）
-$merged_records = get_merged_work_records($pdo, $start_date, $end_date);
+// 勤務実績データ取得（予定と実績のマージ）- 自社のユーザーのみ
+$user_ids = array_column($users, 'user_id');
+$merged_records = get_merged_work_records($pdo, $start_date, $end_date, null, $user_ids);
 
 // 集計処理
 $user_stats = [];

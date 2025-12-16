@@ -161,18 +161,23 @@ CREATE TABLE IF NOT EXISTS `announcements` (
 -- シフトテンプレート
 CREATE TABLE IF NOT EXISTS `shift_templates` (
     `template_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `company_id` INT UNSIGNED NOT NULL,
     `template_name` VARCHAR(50) NOT NULL,
     `start_time` TIME NOT NULL,
     `end_time` TIME NOT NULL,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 定休日
 CREATE TABLE IF NOT EXISTS `holidays` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `holiday_date` DATE NOT NULL UNIQUE,
+    `company_id` INT UNSIGNED NOT NULL,
+    `holiday_date` DATE NOT NULL,
     `description` VARCHAR(255),
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `unique_company_date` (`company_id`, `holiday_date`),
+    FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- メール送信キュー

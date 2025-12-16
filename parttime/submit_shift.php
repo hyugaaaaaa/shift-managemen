@@ -132,7 +132,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && !$is_past_deadline){
     $check_start = (strlen($start_time) === 5) ? $start_time . ':00' : $start_time;
     $check_end = (strlen($end_time) === 5) ? $end_time . ':00' : $end_time;
 
-    $stmt->execute([$_SESSION['user_id'], $shift_date, $check_start, $check_end, $company_id]);
+    $stmt->execute([$_SESSION['user_id'], $shift_date, $check_start, $check_end]);
     if ($stmt->fetchColumn() > 0) {
         $error = '指定されたシフトは既に提出済みです。';
     } else {

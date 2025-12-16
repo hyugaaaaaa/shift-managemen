@@ -19,12 +19,17 @@ if ($user_type === 'owner' && !empty($_GET['user_id'])) {
     $target_user_id = $_GET['user_id'];
 }
 
-// ユーザー情報取得
+// ユーザー情報取得（company_idも取得して検証）
 $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
 $stmt->execute([$target_user_id]);
 $user = $stmt->fetch();
 
 if (!$user) die('User not found');
+
+// セキュリティチェック: 同じ会社のユーザーのみアクセス可能
+if ($user['company_id'] != $_SESSION['company_id']) {
+    die('Access denied: You can only view payslips from your own company.');
+}
 
 // 設定取得
 $closing_day = (int)get_system_setting($pdo, 'closing_day', 15);

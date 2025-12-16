@@ -67,10 +67,81 @@ function validate_csrf_token($token) {
  * @param int|null $target_user_id 特定ユーザーのみ取得する場合に指定
  * @return array [user_id => [date => record]]
  */
-function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id = null) {
-    $service = new ShiftService();
-    $company_id = get_current_company_id();
-    return $service->getMergedWorkRecords($pdo, $start_date, $end_date, $target_user_id, $company_id);
+function get_merged_work_records($pdo, $start_date, $end_date, $target_user_id = null, $user_ids = null) {
+    // shifts_scheduled（確定シフト）を取得
+    $sql_scheduled = 'SELECT user_id, shift_date, start_time, end_time FROM shifts_scheduled WHERE shift_date BETWEEN ? AND ?';
+    $params_scheduled = [$start_date, $end_date];
+    
+    if ($target_user_id !== null) {
+        $sql_scheduled .= ' AND user_id = ?';
+        $params_scheduled[] = $target_user_id;
+    } elseif ($user_ids !== null && is_array($user_ids) && count($user_ids) > 0) {
+        $placeholders = implode(',', array_fill(0, count($user_ids), '?'));
+        $sql_scheduled .= " AND user_id IN ($placeholders)";
+        $params_scheduled = array_merge($params_scheduled, $user_ids);
+    }
+    
+    $stmt_scheduled = $pdo->prepare($sql_scheduled);
+    $stmt_scheduled->execute($params_scheduled);
+    $scheduled_rows = $stmt_scheduled->fetchAll();
+
+    // attendance_records（実績）を取得
+    $sql_attendance = 'SELECT user_id, date AS shift_date, clock_in_time AS start_time, clock_out_time AS end_time FROM attendance_records WHERE date BETWEEN ? AND ?';
+    $params_attendance = [$start_date, $end_date];
+    
+    if ($target_user_id !== null) {
+        $sql_attendance .= ' AND user_id = ?';
+        $params_attendance[] = $target_user_id;
+    } elseif ($user_ids !== null && is_array($user_ids) && count($user_ids) > 0) {
+        $placeholders = implode(',', array_fill(0, count($user_ids), '?'));
+        $sql_attendance .= " AND user_id IN ($placeholders)";
+        $params_attendance = array_merge($params_attendance, $user_ids);
+    }
+    
+    $stmt_attendance = $pdo->prepare($sql_attendance);
+    $stmt_attendance->execute($params_attendance);
+    $attendance_rows = $stmt_attendance->fetchAll();
+
+    // ここからマージ処理
+    $merged_records = [];
+
+    // 予定シフトをマージ
+    foreach ($scheduled_rows as $row) {
+        $user_id = $row['user_id'];
+        $date = $row['shift_date'];
+        if (!isset($merged_records[$user_id])) {
+            $merged_records[$user_id] = [];
+        }
+        if (!isset($merged_records[$user_id][$date])) {
+            $merged_records[$user_id][$date] = [];
+        }
+        // 予定シフトを配列に追加
+        $merged_records[$user_id][$date][] = [
+            'start' => $row['start_time'],
+            'end' => $row['end_time'],
+            'type' => 'scheduled'
+        ];
+    }
+
+    // 実績をマージ（実績がある場合は予定を上書き）
+    foreach ($attendance_rows as $row) {
+        $user_id = $row['user_id'];
+        $date = $row['shift_date'];
+        if (!isset($merged_records[$user_id])) {
+            $merged_records[$user_id] = [];
+        }
+        if (!isset($merged_records[$user_id][$date])) {
+            $merged_records[$user_id][$date] = [];
+        }
+        // 実績を配列に追加
+        $merged_records[$user_id][$date][] = [
+            'start' => $row['start_time'],
+            'end' => $row['end_time'],
+            'type' => 'actual'
+        ];
+    }
+
+    return $merged_records;
 }
 
 /**
@@ -165,6 +236,36 @@ function validate_company_code($pdo, $code) {
  */
 function get_current_company_id() {
     return $_SESSION['company_id'] ?? null;
+}
+
+/**
+ * パスワードポリシーを検証する
+ * @param string $password
+ * @param int $company_id
+ * @return true|string true if valid, error message string if invalid
+ */
+function validate_password_policy($password, $company_id) {
+    if (empty($password)) return 'パスワードを入力してください。';
+    
+    $pdo = getPDO();
+    // デフォルト値: 最小8文字, 複雑性不要
+    $min_len = (int)SystemSetting::get($pdo, 'password_min_length', 8, $company_id);
+    $require_complex = (bool)SystemSetting::get($pdo, 'password_require_complex', 0, $company_id);
+    
+    if (strlen($password) < $min_len) {
+        return "パスワードは{$min_len}文字以上で設定してください。";
+    }
+    
+    if ($require_complex) {
+        // 英字(a-zA-Z), 数字(0-9), 記号(それ以外) の3種が含まれているか簡易チェック
+        if (!preg_match('/[a-zA-Z]/', $password) || 
+            !preg_match('/[0-9]/', $password) || 
+            !preg_match('/[^a-zA-Z0-9]/', $password)) { 
+            return 'パスワードは英字・数字・記号をそれぞれ1つ以上含める必要があります。';
+        }
+    }
+    
+    return true;
 }
 
 

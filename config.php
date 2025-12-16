@@ -55,6 +55,10 @@ define('SMTP_SECURE', $_ENV['SMTP_SECURE'] ?? $_SERVER['SMTP_SECURE'] ?? 'tls');
 define('FROM_EMAIL', $_ENV['FROM_EMAIL'] ?? $_SERVER['FROM_EMAIL'] ?? '');
 define('FROM_NAME', $_ENV['FROM_NAME'] ?? $_SERVER['FROM_NAME'] ?? 'Shift Management System');
 
+// ログインエラー詳細表示 (true: 詳細表示, false: 汎用メッセージ)
+// セキュリティ上は false 推奨だが、社内システム等で利便性重視なら true
+define('SHOW_DETAILED_LOGIN_ERRORS', false);
+
 // PHP実行ファイルのパス (XAMPP環境等でパスが通っていない場合に対応)
 define('PHP_BINARY_PATH', $_ENV['PHP_BINARY_PATH'] ?? $_SERVER['PHP_BINARY_PATH'] ?? 'C:\\xampp\\php\\php.exe');
 

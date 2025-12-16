@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = '全ての項目を入力してください。';
     } elseif ($new_password !== $confirm_password) {
         $error = '新しいパスワードが一致しません。';
-    } elseif (strlen($new_password) < 8) {
-        $error = '新しいパスワードは8文字以上で設定してください。';
+    } elseif (($policy_msg = validate_password_policy($new_password, get_current_company_id())) !== true) {
+        $error = $policy_msg;
     } else {
         $pdo = getPDO();
         // 現在のパスワード確認

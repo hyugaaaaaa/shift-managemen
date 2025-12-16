@@ -33,7 +33,7 @@
       <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
       
       <div class="form-floating mb-3">
-        <input type="text" name="company_code" class="form-control" id="floatingCompanyCode" placeholder="企業コード" required autocomplete="organization">
+        <input type="text" name="company_code" class="form-control" id="floatingCompanyCode" placeholder="企業コード" required autocomplete="organization" value="<?php echo htmlspecialchars($saved_company_code); ?>">
         <label for="floatingCompanyCode"><i class="bi bi-building me-1"></i> 企業コード</label>
       </div>
 

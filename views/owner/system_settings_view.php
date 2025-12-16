@@ -80,6 +80,21 @@
 
 
 
+                <hr class="my-4">
+                <h5 class="mb-3">セキュリティ設定</h5>
+
+                <div class="mb-3">
+                    <label for="password_min_length" class="form-label">パスワード最小文字数</label>
+                    <input type="number" class="form-control" id="password_min_length" name="password_min_length" value="<?php echo htmlspecialchars($current_password_min_length); ?>" min="4" max="32" required>
+                    <div class="form-text">従業員のパスワードに要求する最小文字数です（デフォルト: 8）。</div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="password_require_complex" name="password_require_complex" value="1" <?php if($current_password_require_complex) echo 'checked'; ?>>
+                    <label class="form-check-label" for="password_require_complex">複雑なパスワードを要求する</label>
+                    <div class="form-text">英字、数字、記号の組み合わせを必須にします（現在未実装ロジック用）。</div>
+                </div>
+
                 <button type="submit" class="btn btn-primary">保存</button>
             </form>
         </div>

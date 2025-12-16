@@ -13,8 +13,12 @@
             <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
-        <div class="card">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-people-fill me-2"></i>従業員一覧
+            </div>
             <div class="card-body">
+                <div class="table-responsive-mobile">
                 <table class="table table-hover">
                     <thead>
                         <tr>
@@ -51,6 +55,7 @@
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div><!-- /.table-responsive-mobile -->
             </div>
         </div>
     </div>

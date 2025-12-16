@@ -208,21 +208,36 @@ function status_label($s){
 
 render_header('希望シフト一覧（オーナー）');
 ?>
-<div class="row">
-  <div class="col-md-12">
-    <h1 class="h4 mb-3">希望シフト一覧</h1>
-    <div class="mb-3 d-flex justify-content-between">
-      <div class="btn-group">
-        <a class="btn btn-sm btn-outline-secondary filter-btn <?php echo $filter==='pending'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=pending">保留</a>
-        <a class="btn btn-sm btn-outline-secondary filter-btn <?php echo $filter==='all'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=all">すべて</a>
-        <a class="btn btn-sm btn-outline-secondary filter-btn <?php echo $filter==='approved'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=approved">承認済み</a>
-        <a class="btn btn-sm btn-outline-secondary filter-btn <?php echo $filter==='rejected'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=rejected">却下</a>
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title"><i class="bi bi-calendar-check me-2"></i>希望シフト一覧</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+      <i class="bi bi-plus-lg me-1"></i>新規シフト登録
+    </button>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-3">
+      <div class="d-flex gap-2 align-items-center">
+        <span class="text-muted me-2 flex-shrink-0"><i class="bi bi-funnel me-1"></i>フィルター:</span>
+        <div class="btn-group flex-grow-1" role="group">
+          <a class="btn btn-outline-secondary <?php echo $filter==='pending'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=pending">
+            <i class="bi bi-clock-history me-1"></i>保留
+          </a>
+          <a class="btn btn-outline-secondary <?php echo $filter==='approved'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=approved">
+            <i class="bi bi-check-circle me-1"></i>承認済み
+          </a>
+          <a class="btn btn-outline-secondary <?php echo $filter==='rejected'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=rejected">
+            <i class="bi bi-x-circle me-1"></i>却下
+          </a>
+          <a class="btn btn-outline-secondary <?php echo $filter==='all'?'active':''; ?>" href="<?php echo BASE_PATH; ?>/owner/manage_requests.php?filter=all">
+            <i class="bi bi-list-ul me-1"></i>すべて
+          </a>
+        </div>
       </div>
-      
-      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-        <i class="bi bi-plus-lg me-1"></i>新規シフト登録
-      </button>
     </div>
+  </div>
 
     <?php if(!empty($_GET['msg'])): ?>
       <div class="alert alert-success"><?php echo htmlspecialchars($_GET['msg']); ?></div>
@@ -234,87 +249,118 @@ render_header('希望シフト一覧（オーナー）');
     <?php if(empty($requests)): ?>
       <div class="alert alert-info">該当する希望シフトはありません。</div>
     <?php else: ?>
-      <!-- PC View: Table -->
-      <div class="d-none d-md-block">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>ユーザー</th>
-              <th>日付</th>
-              <th>時間</th>
-              <th>状態</th>
-              <th>提出日時</th>
-              <th class="text-end">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-          <?php foreach($requests as $r): ?>
-            <tr>
-              <td>
-                <div class="fw-bold"><i class="bi bi-person-circle me-1"></i><?php echo htmlspecialchars($r['username']); ?></div>
-              </td>
-              <td><?php echo htmlspecialchars($r['shift_date']); ?></td>
-              <td>
-                <?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?> - <?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>
-                <?php if(strtotime($r['end_time']) <= strtotime($r['start_time'])) echo ' <span class="badge bg-secondary">翌日</span>'; ?>
-              </td>
-              <td>
-                <?php 
-                  $status = $r['request_status'];
-                  $badgeClass = 'bg-secondary';
-                  if($status === 'approved') $badgeClass = 'bg-success';
-                  if($status === 'rejected') $badgeClass = 'bg-danger';
-                  if($status === 'pending') $badgeClass = 'bg-warning text-dark';
-                ?>
-                <span class="badge <?php echo $badgeClass; ?>"><?php echo htmlspecialchars(status_label($status)); ?></span>
-              </td>
-              <td class="small text-muted"><?php echo htmlspecialchars($r['submitted_at']); ?></td>
-              <td class="text-end">
-                <?php if($r['request_status'] === 'pending'): ?>
+      <!-- PC View: Enhanced Card Grid --><div class="d-none d-md-block">
+        <div class="row g-3">
+          <?php foreach($requests as $r): 
+            $status = $r['request_status'];
+            $statusConfig = [
+              'pending' => ['badge' => 'bg-warning text-dark', 'border' => 'border-warning', 'icon' => 'bi-clock-history'],
+              'approved' => ['badge' => 'bg-success', 'border' => 'border-success', 'icon' => 'bi-check-circle-fill'],
+              'rejected' => ['badge' => 'bg-danger', 'border' => 'border-danger', 'icon' => 'bi-x-circle-fill']
+            ];
+            $config = $statusConfig[$status] ?? ['badge' => 'bg-secondary', 'border' => '', 'icon' => 'bi-circle'];
+          ?>
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm hover-shadow transition-all <?php echo $config['border']; ?>" style="border-left: 4px solid !important;">
+              <div class="card-body p-4">
+                <!-- Header: User & Status -->
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle bg-primary bg-opacity-10 text-primary me-2">
+                      <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div>
+                      <h6 class="mb-0 fw-bold"><?php echo htmlspecialchars($r['username']); ?></h6>
+                      <small class="text-muted"><?php echo htmlspecialchars($r['shift_date']); ?></small>
+                    </div>
+                  </div>
+                  <span class="badge <?php echo $config['badge']; ?> d-flex align-items-center gap-1">
+                    <i class="<?php echo $config['icon']; ?>"></i>
+                    <?php echo htmlspecialchars(status_label($status)); ?>
+                  </span>
+                </div>
+
+                <!-- Time Info -->
+                <div class="shift-time-display mb-3 p-3 bg-light rounded">
+                  <div class="d-flex align-items-center justify-content-center">
+                    <div class="text-center">
+                      <i class="bi bi-clock text-primary fs-4 mb-2 d-block"></i>
+                      <div class="fw-bold fs-5">
+                        <?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?>
+                        <span class="mx-2 text-muted">→</span>
+                        <?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>
+                      </div>
+                      <?php if(strtotime($r['end_time']) <= strtotime($r['start_time'])): ?>
+                        <span class="badge bg-secondary mt-1">翌日</span>
+                      <?php endif; ?>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Submitted Date -->
+                <div class="text-center mb-3">
+                  <small class="text-muted">
+                    <i class="bi bi-calendar-check me-1"></i>
+                    提出: <?php echo htmlspecialchars(date('m/d H:i', strtotime($r['submitted_at']))); ?>
+                  </small>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex gap-2 justify-content-center border-top pt-3">
+                  <?php if($r['request_status'] === 'pending'): ?>
                     <form method="post" action="manage_requests.php" style="display:inline" id="form-reject-<?php echo $r['request_id']; ?>">
-                    <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
-                    <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                    <input type="hidden" name="action" value="reject">
-                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#confirmModal" 
-                            data-action="reject" 
-                            data-request-id="<?php echo $r['request_id']; ?>">却下</button>
-                  </form>
-                  <form method="post" action="manage_requests.php" style="display:inline" id="form-approve-<?php echo $r['request_id']; ?>">
-                    <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
-                    <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                    <input type="hidden" name="action" value="approve">
-                    <button type="button" class="btn btn-sm btn-success ms-1" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#confirmModal" 
-                            data-action="approve" 
-                            data-request-id="<?php echo $r['request_id']; ?>">承認</button>
-                  </form>
-                <?php elseif($r['request_status'] === 'approved'): ?>
-                  <form method="post" action="manage_requests.php" style="display:inline" id="form-cancel-<?php echo $r['request_id']; ?>">
-                    <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
-                    <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                    <input type="hidden" name="action" value="cancel_approval">
-                    <button type="button" class="btn btn-sm btn-outline-warning" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#confirmModal" 
-                            data-action="cancel_approval" 
-                            data-request-id="<?php echo $r['request_id']; ?>">取消</button>
-                  </form>
-                  <button type="button" class="btn btn-sm btn-outline-primary btn-edit ms-1"
-                          data-request-id="<?php echo $r['request_id']; ?>"
-                          data-date="<?php echo $r['shift_date']; ?>"
-                          data-start="<?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?>"
-                          data-end="<?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>">修正</button>
-                <?php else: ?>
-                  <span class="text-muted">-</span>
-                <?php endif; ?>
-              </td>
-            </tr>
+                      <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
+                      <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
+                      <input type="hidden" name="action" value="reject">
+                      <button type="button" class="btn btn-outline-danger btn-sm" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#confirmModal" 
+                              data-action="reject" 
+                              data-request-id="<?php echo $r['request_id']; ?>">
+                        <i class="bi bi-x-lg me-1"></i>却下
+                      </button>
+                    </form>
+                    <form method="post" action="manage_requests.php" style="display:inline" id="form-approve-<?php echo $r['request_id']; ?>">
+                      <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
+                      <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
+                      <input type="hidden" name="action" value="approve">
+                      <button type="button" class="btn btn-success btn-sm" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#confirmModal" 
+                              data-action="approve" 
+                              data-request-id="<?php echo $r['request_id']; ?>">
+                        <i class="bi bi-check-lg me-1"></i>承認
+                      </button>
+                    </form>
+                  <?php elseif($r['request_status'] === 'approved'): ?>
+                    <form method="post" action="manage_requests.php" style="display:inline" id="form-cancel-<?php echo $r['request_id']; ?>">
+                      <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
+                      <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
+                      <input type="hidden" name="action" value="cancel_approval">
+                      <button type="button" class="btn btn-outline-warning btn-sm" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#confirmModal" 
+                              data-action="cancel_approval" 
+                              data-request-id="<?php echo $r['request_id']; ?>">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>取消
+                      </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-edit"
+                            data-request-id="<?php echo $r['request_id']; ?>"
+                            data-date="<?php echo $r['shift_date']; ?>"
+                            data-start="<?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?>"
+                            data-end="<?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>">
+                      <i class="bi bi-pencil me-1"></i>修正
+                    </button>
+                  <?php else: ?>
+                    <span class="text-muted small">操作不可</span>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          </div>
           <?php endforeach; ?>
-          </tbody>
-        </table>
+        </div>
       </div>
 
       <!-- Mobile View: Cards -->
@@ -406,7 +452,6 @@ render_header('希望シフト一覧（オーナー）');
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
-  </div>
 </div>
 
 <!-- Confirmation Modal -->
