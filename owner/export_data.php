@@ -43,10 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // CSVヘッダー
                 $csv_data = "従業員ID,氏名,対象月,通常勤務時間(分),深夜勤務時間(分),基本給,深夜割増,交通費,総支給額\n";
+                // MS Excel等で開くためSJIS変換
+                $csv_data = mb_convert_encoding($csv_data, 'SJIS-win', 'UTF-8');
 
                 foreach ($users as $u) {
-                    // 勤務時間計算 (簡易版: 本来は monthly_hours.php 等とロジック共有すべき)
-                    // ここでは get_merged_work_records を利用して計算
+                    // 勤務時間計算
                     $records = get_merged_work_records($pdo, $start_date, $end_date, $u['user_id']);
                     $total_normal = 0;
                     $total_night = 0;
@@ -56,39 +57,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         foreach ($records[$u['user_id']] as $date => $date_records) {
                             $has_worked_today = false;
                             foreach ($date_records as $r) {
+                                // 実績(attendance/present) または 予定(schedule/scheduled)
                                 if (($r['type'] === 'attendance' && $r['status'] === 'present') || ($r['type'] === 'schedule' && $r['status'] === 'scheduled')) {
-                                     if ($r['type'] === 'attendance' && $r['start'] && $r['end']) {
+                                     // 実績優先ロジックは get_merged_work_records で処理済みだが、念のため両方チェック
+                                     if ($r['start'] && $r['end']) {
                                         $mins = calculate_shift_minutes($date, $r['start'], $r['end']);
                                         $total_normal += $mins['normal_minutes'];
                                         $total_night += $mins['night_minutes'];
                                         $has_worked_today = true;
-                                     } elseif ($r['type'] === 'schedule' && $r['start'] && $r['end']) {
-                                         // 予定のみの場合（実績がない場合）の計算ロジックも必要であればここに追加
-                                         // get_merged_work_records の仕様上、実績があれば予定は入ってこないはずだが、
-                                         // 念のため条件分岐を残しておく
-                                        $mins = calculate_shift_minutes($date, $r['start'], $r['end']);
-                                        $total_normal += $mins['normal_minutes'];
-                // 新しいサービス層のインスタンス化 (仮)
-                // 実際には適切な場所でインスタンス化するか、DIコンテナを使用
-                require_once __DIR__ . '/../services/SalaryCalculationService.php';
-                $service = new SalaryCalculationService();
+                                     }
+                                }
+                            }
+                            if ($has_worked_today) {
+                                $days_worked++;
+                            }
+                        }
+                    }
 
-                $csv_data = mb_convert_encoding("社員番号,名前,年月,総勤務時間,総支給額,交通費,合計支給額\n", 'SJIS-win', 'UTF-8');
-                
-                foreach ($users as $user) {
-                    $work_records = $service->getMergedWorkRecords($pdo, $start_date, $end_date, $user['user_id'], $company_id);
-                    $salary_data = $service->calculateSalary($work_records, $user['hourly_rate'], $user['transportation_expense']);
-                    
+                    // 給与計算
+                    // calculate_salary_amount は [pay_normal, pay_night, subtotal] を返す (functions.php参照)
+                    // subtotal = pay_normal + pay_night
+                    $salary_info = calculate_salary_amount($total_normal, $total_night, $u['hourly_rate']);
+                    $pay_basic = $salary_info['pay_normal'];
+                    $pay_night_allowance = $salary_info['pay_night'];
+                    $pay_transport = $days_worked * $u['transportation_expense'];
+                    $grand_total = $salary_info['subtotal'] + $pay_transport;
+
                     $line = [
-                        $user['company_user_id'],
-                        $user['username'],
+                        $u['company_user_id'] ?? $u['user_id'],
+                        $u['username'],
                         $month,
-                        sprintf('%.2f', $salary_data['total_hours']),
-                        $salary_data['total_salary'],
-                        $salary_data['total_transportation'],
-                        $salary_data['grand_total']
+                        sprintf('%.2f', $total_normal),
+                        sprintf('%.2f', $total_night),
+                        $pay_basic,
+                        $pay_night_allowance,
+                        $pay_transport,
+                        $grand_total
                     ];
-                    // CSV用にカンマエスケープ等は簡易実装
+                    
+                    // CSV Escape
                     $line = array_map(function($v){ return '"'.str_replace('"','""',$v).'"'; }, $line);
                     $csv_data .= mb_convert_encoding(implode(',', $line) . "\n", 'SJIS-win', 'UTF-8');
                 }

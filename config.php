@@ -37,6 +37,7 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
     ini_set('session.cookie_secure', 1);
 }
 
+
 // DB接続設定
 define('DB_HOST', $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? '127.0.0.1');
 define('DB_NAME', $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? 'shift_management');
@@ -57,7 +58,7 @@ define('FROM_NAME', $_ENV['FROM_NAME'] ?? $_SERVER['FROM_NAME'] ?? 'Shift Manage
 
 // ログインエラー詳細表示 (true: 詳細表示, false: 汎用メッセージ)
 // セキュリティ上は false 推奨だが、社内システム等で利便性重視なら true
-define('SHOW_DETAILED_LOGIN_ERRORS', false);
+define('SHOW_DETAILED_LOGIN_ERRORS', true);
 
 // PHP実行ファイルのパス (XAMPP環境等でパスが通っていない場合に対応)
 define('PHP_BINARY_PATH', $_ENV['PHP_BINARY_PATH'] ?? $_SERVER['PHP_BINARY_PATH'] ?? 'C:\\xampp\\php\\php.exe');
@@ -80,5 +81,17 @@ function getPDO(){
 }
 
 require_once __DIR__ . '/functions.php';
+
+// DBセッションハンドラの登録
+require_once __DIR__ . '/db/DbSessionHandler.php';
+try {
+    // セッションハンドラの設定 (DB接続確立後)
+    $session_pdo = getPDO();
+    $handler = new DbSessionHandler($session_pdo);
+    session_set_save_handler($handler, true);
+} catch (Exception $e) {
+    // DB接続失敗時はデフォルト（ファイル）のままにするか、ログ出力
+    error_log("Session Handler Error: " . $e->getMessage());
+}
 
 ?>

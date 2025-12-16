@@ -18,15 +18,16 @@
                 <i class="bi bi-people-fill me-2"></i>従業員一覧
             </div>
             <div class="card-body">
-                <div class="table-responsive-mobile">
+                <!-- Desktop (Table) View -->
+                <div class="table-responsive d-none d-md-block">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>社員番号</th>
-                            <th>名前</th>
-                            <th>時給</th>
-                            <th>交通費</th>
-                            <th>操作</th>
+                            <th class="text-nowrap">社員番号</th>
+                            <th class="text-nowrap">名前</th>
+                            <th class="text-nowrap">時給</th>
+                            <th class="text-nowrap">交通費</th>
+                            <th class="text-nowrap">操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,25 +38,75 @@
                             <td>¥<?php echo number_format($user['hourly_rate']); ?></td>
                             <td>¥<?php echo number_format($user['transportation_expense']); ?></td>
                             <td>
-                                <form method="post" style="display:inline-block;" id="form-delete-<?php echo $user['user_id']; ?>">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#deleteModal" 
-                                            data-user-id="<?php echo $user['user_id']; ?>" 
-                                            data-username="<?php echo htmlspecialchars($user['username']); ?>">
-                                        削除
-                                    </button>
-                                </form>
-                                <a href="user_edit.php?id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-primary">編集</a>
+                                <div class="d-flex gap-2">
+                                    <form method="post" id="form-delete-<?php echo $user['user_id']; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                        <button type="button" class="btn btn-sm btn-outline-danger text-nowrap" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal" 
+                                                data-user-id="<?php echo $user['user_id']; ?>" 
+                                                data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                            削除
+                                        </button>
+                                    </form>
+                                    <a href="user_edit.php?id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-primary text-nowrap">編集</a>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                </div><!-- /.table-responsive-mobile -->
+                </div>
+
+                <!-- Mobile (Card) View -->
+                <div class="d-block d-md-none">
+                    <?php if (empty($users)): ?>
+                        <p class="text-center text-muted py-3">従業員がいません。</p>
+                    <?php else: ?>
+                        <?php foreach ($users as $user): ?>
+                        <div class="card mb-3 shadow-sm border-0">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title fw-bold mb-0">
+                                        <i class="bi bi-person-circle text-primary me-2"></i><?php echo htmlspecialchars($user['username']); ?>
+                                    </h5>
+                                    <span class="badge bg-light text-dark border">ID: <?php echo htmlspecialchars($user['company_user_id'] ?? '-'); ?></span>
+                                </div>
+                                <hr class="my-2">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">時給</small>
+                                        <span class="fw-bold">¥<?php echo number_format($user['hourly_rate']); ?></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">交通費</small>
+                                        <span class="fw-bold">¥<?php echo number_format($user['transportation_expense']); ?></span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <form method="post" id="form-delete-mobile-<?php echo $user['user_id']; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generate_csrf_token()); ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal" 
+                                                data-user-id="<?php echo $user['user_id']; ?>" 
+                                                data-username="<?php echo htmlspecialchars($user['username']); ?>">
+                                            <i class="bi bi-trash me-1"></i>削除
+                                        </button>
+                                    </form>
+                                    <a href="user_edit.php?id=<?php echo $user['user_id']; ?>" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>編集
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

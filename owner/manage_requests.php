@@ -110,7 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!empty($req['email'])) {
                         $subject = "【シフト承認】" . $req['shift_date'];
                         $body = "{$req['username']} さん\n\n申請された以下のシフト希望が承認されました。\n\n日付: {$req['shift_date']}\n時間: " . substr($req['start_time'], 0, 5) . " 〜 " . substr($req['end_time'], 0, 5) . "\n\nご確認ください。";
-                        send_mail($req['email'], $subject, $body);
+                        if (send_mail($req['email'], $subject, $body)) {
+                            // 非同期で送信プロセスを起動
+                            launch_background_process(__DIR__ . '/../process_mail.php');
+                        }
                     }
 
                     $msg = '承認して確定シフトに追加しました。';
@@ -123,7 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!empty($req['email'])) {
                         $subject = "【シフト却下】" . $req['shift_date'];
                         $body = "{$req['username']} さん\n\n申請された以下のシフト希望は却下されました。\n\n日付: {$req['shift_date']}\n時間: " . substr($req['start_time'], 0, 5) . " 〜 " . substr($req['end_time'], 0, 5) . "\n\n詳細は店長までお問い合わせください。";
-                        send_mail($req['email'], $subject, $body);
+                        if (send_mail($req['email'], $subject, $body)) {
+                            // 非同期で送信プロセスを起動
+                            launch_background_process(__DIR__ . '/../process_mail.php');
+                        }
                     }
 
                     $msg = '却下しました。';
@@ -249,117 +255,114 @@ render_header('希望シフト一覧（オーナー）');
     <?php if(empty($requests)): ?>
       <div class="alert alert-info">該当する希望シフトはありません。</div>
     <?php else: ?>
-      <!-- PC View: Enhanced Card Grid --><div class="d-none d-md-block">
-        <div class="row g-3">
-          <?php foreach($requests as $r): 
-            $status = $r['request_status'];
-            $statusConfig = [
-              'pending' => ['badge' => 'bg-warning text-dark', 'border' => 'border-warning', 'icon' => 'bi-clock-history'],
-              'approved' => ['badge' => 'bg-success', 'border' => 'border-success', 'icon' => 'bi-check-circle-fill'],
-              'rejected' => ['badge' => 'bg-danger', 'border' => 'border-danger', 'icon' => 'bi-x-circle-fill']
-            ];
-            $config = $statusConfig[$status] ?? ['badge' => 'bg-secondary', 'border' => '', 'icon' => 'bi-circle'];
-          ?>
-          <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm hover-shadow transition-all <?php echo $config['border']; ?>" style="border-left: 4px solid !important;">
-              <div class="card-body p-4">
-                <!-- Header: User & Status -->
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <div class="d-flex align-items-center">
-                    <div class="avatar-circle bg-primary bg-opacity-10 text-primary me-2">
-                      <i class="bi bi-person-fill"></i>
-                    </div>
-                    <div>
-                      <h6 class="mb-0 fw-bold"><?php echo htmlspecialchars($r['username']); ?></h6>
-                      <small class="text-muted"><?php echo htmlspecialchars($r['shift_date']); ?></small>
-                    </div>
-                  </div>
-                  <span class="badge <?php echo $config['badge']; ?> d-flex align-items-center gap-1">
-                    <i class="<?php echo $config['icon']; ?>"></i>
-                    <?php echo htmlspecialchars(status_label($status)); ?>
-                  </span>
-                </div>
-
-                <!-- Time Info -->
-                <div class="shift-time-display mb-3 p-3 bg-light rounded">
-                  <div class="d-flex align-items-center justify-content-center">
-                    <div class="text-center">
-                      <i class="bi bi-clock text-primary fs-4 mb-2 d-block"></i>
-                      <div class="fw-bold fs-5">
-                        <?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?>
-                        <span class="mx-2 text-muted">→</span>
-                        <?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>
+      <!-- PC View: Table List --><div class="d-none d-md-block">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-0">
+            <table class="table table-hover mb-0 align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-4">状態</th>
+                  <th>従業員名</th>
+                  <th>日付</th>
+                  <th>時間</th>
+                  <th>提出日時</th>
+                  <th class="text-end pe-4">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach($requests as $r): 
+                  $status = $r['request_status'];
+                  $statusConfig = [
+                    'pending' => ['badge' => 'bg-warning text-dark', 'icon' => 'bi-clock-history'],
+                    'approved' => ['badge' => 'bg-success', 'icon' => 'bi-check-circle-fill'],
+                    'rejected' => ['badge' => 'bg-danger', 'icon' => 'bi-x-circle-fill']
+                  ];
+                  $config = $statusConfig[$status] ?? ['badge' => 'bg-secondary', 'icon' => 'bi-circle'];
+                ?>
+                <tr>
+                  <td class="ps-4">
+                    <span class="badge <?php echo $config['badge']; ?> d-inline-flex align-items-center gap-1">
+                      <i class="<?php echo $config['icon']; ?>"></i>
+                      <?php echo htmlspecialchars(status_label($status)); ?>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-circle-sm bg-primary bg-opacity-10 text-primary me-2 rounded-circle d-flex align-items-center justify-content-center" style="width:32px; height:32px;">
+                        <i class="bi bi-person-fill small"></i>
                       </div>
+                      <span class="fw-bold"><?php echo htmlspecialchars($r['username']); ?></span>
+                    </div>
+                  </td>
+                  <td><?php echo htmlspecialchars($r['shift_date']); ?></td>
+                  <td>
+                    <div class="fw-bold">
+                      <?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?> - <?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>
                       <?php if(strtotime($r['end_time']) <= strtotime($r['start_time'])): ?>
-                        <span class="badge bg-secondary mt-1">翌日</span>
+                        <span class="badge bg-secondary ms-1" style="font-size: 0.7em;">翌日</span>
                       <?php endif; ?>
                     </div>
-                  </div>
-                </div>
-
-                <!-- Submitted Date -->
-                <div class="text-center mb-3">
-                  <small class="text-muted">
-                    <i class="bi bi-calendar-check me-1"></i>
-                    提出: <?php echo htmlspecialchars(date('m/d H:i', strtotime($r['submitted_at']))); ?>
-                  </small>
-                </div>
-
-                <!-- Actions -->
-                <div class="d-flex gap-2 justify-content-center border-top pt-3">
-                  <?php if($r['request_status'] === 'pending'): ?>
-                    <form method="post" action="manage_requests.php" style="display:inline" id="form-reject-<?php echo $r['request_id']; ?>">
-                      <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
-                      <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                      <input type="hidden" name="action" value="reject">
-                      <button type="button" class="btn btn-outline-danger btn-sm" 
-                              data-bs-toggle="modal" 
-                              data-bs-target="#confirmModal" 
-                              data-action="reject" 
-                              data-request-id="<?php echo $r['request_id']; ?>">
-                        <i class="bi bi-x-lg me-1"></i>却下
-                      </button>
-                    </form>
-                    <form method="post" action="manage_requests.php" style="display:inline" id="form-approve-<?php echo $r['request_id']; ?>">
-                      <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
-                      <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                      <input type="hidden" name="action" value="approve">
-                      <button type="button" class="btn btn-success btn-sm" 
-                              data-bs-toggle="modal" 
-                              data-bs-target="#confirmModal" 
-                              data-action="approve" 
-                              data-request-id="<?php echo $r['request_id']; ?>">
-                        <i class="bi bi-check-lg me-1"></i>承認
-                      </button>
-                    </form>
-                  <?php elseif($r['request_status'] === 'approved'): ?>
-                    <form method="post" action="manage_requests.php" style="display:inline" id="form-cancel-<?php echo $r['request_id']; ?>">
-                      <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
-                      <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
-                      <input type="hidden" name="action" value="cancel_approval">
-                      <button type="button" class="btn btn-outline-warning btn-sm" 
-                              data-bs-toggle="modal" 
-                              data-bs-target="#confirmModal" 
-                              data-action="cancel_approval" 
-                              data-request-id="<?php echo $r['request_id']; ?>">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>取消
-                      </button>
-                    </form>
-                    <button type="button" class="btn btn-outline-primary btn-sm btn-edit"
-                            data-request-id="<?php echo $r['request_id']; ?>"
-                            data-date="<?php echo $r['shift_date']; ?>"
-                            data-start="<?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?>"
-                            data-end="<?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>">
-                      <i class="bi bi-pencil me-1"></i>修正
-                    </button>
-                  <?php else: ?>
-                    <span class="text-muted small">操作不可</span>
-                  <?php endif; ?>
-                </div>
-              </div>
-            </div>
+                  </td>
+                  <td class="text-muted small">
+                    <?php echo htmlspecialchars(date('m/d H:i', strtotime($r['submitted_at']))); ?>
+                  </td>
+                  <td class="text-end pe-4">
+                    <div class="d-flex gap-2 justify-content-end">
+                      <?php if($r['request_status'] === 'pending'): ?>
+                        <form method="post" action="manage_requests.php" style="display:inline" id="form-reject-<?php echo $r['request_id']; ?>">
+                          <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
+                          <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
+                          <input type="hidden" name="action" value="reject">
+                          <button type="button" class="btn btn-outline-danger btn-sm text-nowrap" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#confirmModal" 
+                                  data-action="reject" 
+                                  data-request-id="<?php echo $r['request_id']; ?>">
+                            却下
+                          </button>
+                        </form>
+                        <form method="post" action="manage_requests.php" style="display:inline" id="form-approve-<?php echo $r['request_id']; ?>">
+                          <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
+                          <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
+                          <input type="hidden" name="action" value="approve">
+                          <button type="button" class="btn btn-success btn-sm text-nowrap" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#confirmModal" 
+                                  data-action="approve" 
+                                  data-request-id="<?php echo $r['request_id']; ?>">
+                            承認
+                          </button>
+                        </form>
+                      <?php elseif($r['request_status'] === 'approved'): ?>
+                        <form method="post" action="manage_requests.php" style="display:inline" id="form-cancel-<?php echo $r['request_id']; ?>">
+                          <input type="hidden" name="csrf_token" value="<?php echo h(generate_csrf_token()); ?>">
+                          <input type="hidden" name="request_id" value="<?php echo intval($r['request_id']); ?>">
+                          <input type="hidden" name="action" value="cancel_approval">
+                          <button type="button" class="btn btn-outline-warning btn-sm text-nowrap" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#confirmModal" 
+                                  data-action="cancel_approval" 
+                                  data-request-id="<?php echo $r['request_id']; ?>">
+                            取消
+                          </button>
+                        </form>
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-edit text-nowrap"
+                                data-request-id="<?php echo $r['request_id']; ?>"
+                                data-date="<?php echo $r['shift_date']; ?>"
+                                data-start="<?php echo htmlspecialchars(substr($r['start_time'],0,5)); ?>"
+                                data-end="<?php echo htmlspecialchars(substr($r['end_time'],0,5)); ?>">
+                          修正
+                        </button>
+                      <?php else: ?>
+                        <span class="text-muted small">操作不可</span>
+                      <?php endif; ?>
+                    </div>
+                  </td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
           </div>
-          <?php endforeach; ?>
         </div>
       </div>
 
