@@ -272,3 +272,48 @@ function validate_password_policy($password, $company_id) {
 
 
 
+
+/**
+ * 指定期間の会社の定休日リスト（日付の配列）を取得する
+ * 曜日定休と臨時定休（holidaysテーブル）をマージして返す
+ * @param PDO $pdo
+ * @param int $company_id
+ * @param string $start_date Y-m-d
+ * @param string $end_date Y-m-d
+ * @return array ['2023-01-01', '2023-01-02', ...]
+ */
+function get_company_holidays($pdo, $company_id, $start_date, $end_date) {
+    // 1. 曜日定休設定の取得
+    // system_settings から regular_holiday_days を取得 (例: "0,6")
+    $regular_days_str = SystemSetting::get($pdo, 'regular_holiday_days', '', $company_id);
+    $regular_days = [];
+    if ($regular_days_str !== '') {
+        $regular_days = explode(',', $regular_days_str);
+    }
+    
+    $holidays = [];
+    
+    // 期間内の曜日定休を日付として展開
+    if (!empty($regular_days)) {
+        $current = new DateTime($start_date);
+        $end = new DateTime($end_date);
+        
+        while ($current <= $end) {
+            if (in_array($current->format('w'), $regular_days)) {
+                $holidays[] = $current->format('Y-m-d');
+            }
+            $current->modify('+1 day');
+        }
+    }
+    
+    // 2. 臨時定休の取得 (holidaysテーブル)
+    $stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE company_id = ? AND holiday_date BETWEEN ? AND ?");
+    $stmt->execute([$company_id, $start_date, $end_date]);
+    $db_holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    // マージして重複排除
+    $merged_holidays = array_unique(array_merge($holidays, $db_holidays));
+    sort($merged_holidays);
+    
+    return $merged_holidays;
+}

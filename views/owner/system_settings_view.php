@@ -37,6 +37,33 @@
         </div>
     </div>
 
+    <!-- Mobile Quick Links (Navbar Toggler alternate) -->
+    <div class="d-md-none mb-4">
+        <h5 class="mb-3">管理メニュー</h5>
+        <div class="list-group">
+            <a href="holidays.php" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div><i class="bi bi-calendar-x me-2 text-danger"></i> 定休日設定</div>
+                <i class="bi bi-chevron-right text-muted"></i>
+            </a>
+            <a href="announcements.php" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div><i class="bi bi-megaphone me-2 text-warning"></i> お知らせ管理</div>
+                <i class="bi bi-chevron-right text-muted"></i>
+            </a>
+            <a href="shift_templates.php" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div><i class="bi bi-clock-history me-2 text-success"></i> シフトパターン設定</div>
+                <i class="bi bi-chevron-right text-muted"></i>
+            </a>
+             <a href="export_data.php" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div><i class="bi bi-file-earmark-arrow-down me-2 text-primary"></i> データ出力</div>
+                <i class="bi bi-chevron-right text-muted"></i>
+            </a>
+            <a href="monthly_hours.php" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div><i class="bi bi-currency-yen me-2 text-info"></i> 給与集計</div>
+                 <i class="bi bi-chevron-right text-muted"></i>
+            </a>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-header bg-light">
             <h5 class="card-title mb-0">シフト提出設定</h5>

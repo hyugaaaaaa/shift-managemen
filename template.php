@@ -142,6 +142,11 @@ function render_footer(){
             <i class="bi bi-people<?php echo $current_page == 'users.php' ? '-fill' : ''; ?>"></i>
             <span>従業員</span>
         </a>
+        <!-- Owner: Settings (Menu) -->
+        <a href="<?php echo BASE_PATH; ?>/owner/system_settings.php" class="bottom-nav-item <?php echo $current_page == 'system_settings.php' ? 'active' : ''; ?>">
+            <i class="bi bi-gear<?php echo $current_page == 'system_settings.php' ? '-fill' : ''; ?>"></i>
+            <span>設定</span>
+        </a>
     <?php else: ?>
         <!-- Parttime: Submit Shift -->
         <a href="<?php echo BASE_PATH; ?>/parttime/submit_shift.php" class="bottom-nav-item <?php echo $current_page == 'submit_shift.php' ? 'active' : ''; ?>">

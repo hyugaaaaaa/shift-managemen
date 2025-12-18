@@ -1,0 +1,19 @@
+Database Initialization Script (v2)
+---------------------------------
+Creating DB 'shift_management'...
+Selected DB 'shift_management'.
+Executing: CREATE TABLE IF NOT EXISTS `companies` (
+  `compa...
+Error executing statement:
+CREATE TABLE IF NOT EXISTS `companies` (
+  `company_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `company_name` VARCHAR(100) NOT NULL,
+  `company_code` VARCHAR(20) NOT NULL UNIQUE,
+  `representative_name` VARCHAR(100),
+  `address` VARCHAR(255),
+  `phone_number` VARCHAR(20),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`company_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+Message: SQLSTATE[HY000]: General error: 1813 Tablespace for table '`shift_management`.`companies`' exists. Please DISCARD the tablespace before IMPORT
+Fatal DB Error: SQLSTATE[HY000]: General error: 1813 Tablespace for table '`shift_management`.`companies`' exists. Please DISCARD the tablespace before IMPORT

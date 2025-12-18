@@ -50,9 +50,7 @@ error_log("Dashboard: Found " . count($rows) . " shifts for company_id: " . $_SE
 
 // 定休日の取得
 // 定休日の取得
-$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ? AND company_id = ?");
-$stmt->execute([$startOfMonth, $endOfMonth, $_SESSION['company_id']]);
-$holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$holidays = get_company_holidays($pdo, $_SESSION['company_id'], $startOfMonth, $endOfMonth);
 
 // オーナーの場合、招待コードを取得
 $company_code = '';

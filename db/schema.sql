@@ -163,6 +163,7 @@ CREATE TABLE IF NOT EXISTS `holidays` (
     FOREIGN KEY (`company_id`) REFERENCES `companies`(`company_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
 CREATE TABLE IF NOT EXISTS `mail_queue` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `to_email` VARCHAR(255) NOT NULL,
@@ -174,3 +175,9 @@ CREATE TABLE IF NOT EXISTS `mail_queue` (
     `error_message` TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `sessions` (
+    `id` VARCHAR(128) NOT NULL,
+    `data` TEXT NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

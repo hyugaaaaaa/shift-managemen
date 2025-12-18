@@ -40,9 +40,10 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
 
 // DB接続設定
 define('DB_HOST', $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? '127.0.0.1');
-define('DB_NAME', $_ENV['DB_NAME'] ?? $_SERVER['DB_NAME'] ?? 'shift_management');
+define('DB_NAME', 'shift_management_new'); // Force new DB name to avoid .env conflict
 define('DB_USER', $_ENV['DB_USER'] ?? $_SERVER['DB_USER'] ?? 'root');
 define('DB_PASS', $_ENV['DB_PASSWORD'] ?? $_SERVER['DB_PASSWORD'] ?? $_ENV['DB_PASS'] ?? $_SERVER['DB_PASS'] ?? '');
+
 
 // アプリのベースパス
 if(!defined('BASE_PATH')) define('BASE_PATH', $_ENV['BASE_PATH'] ?? $_SERVER['BASE_PATH'] ?? '/shift_management');
@@ -61,7 +62,15 @@ define('FROM_NAME', $_ENV['FROM_NAME'] ?? $_SERVER['FROM_NAME'] ?? 'Shift Manage
 define('SHOW_DETAILED_LOGIN_ERRORS', true);
 
 // PHP実行ファイルのパス (XAMPP環境等でパスが通っていない場合に対応)
-define('PHP_BINARY_PATH', $_ENV['PHP_BINARY_PATH'] ?? $_SERVER['PHP_BINARY_PATH'] ?? 'C:\\xampp\\php\\php.exe');
+// PHP実行ファイルのパス (XAMPP環境等でパスが通っていない場合に対応)
+// OS判定を行い、WindowsならXAMPPパス、それ以外(Linux等)なら一般的なパスを使用
+if (!defined('PHP_BINARY_PATH')) {
+    $default_php_path = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') 
+        ? 'C:\\xampp\\php\\php.exe' 
+        : '/usr/bin/php';
+    
+    define('PHP_BINARY_PATH', $_ENV['PHP_BINARY_PATH'] ?? $_SERVER['PHP_BINARY_PATH'] ?? $default_php_path);
+}
 
 
 // データベース接続関数

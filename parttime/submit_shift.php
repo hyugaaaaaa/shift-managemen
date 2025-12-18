@@ -33,9 +33,8 @@ $is_past_deadline = $today_day > $deadline_day;
 $deadline_msg = "{$target_year_month}分のシフト提出締め切りは、今月{$deadline_day}日 です。";
 
 // 定休日情報の取得
-$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?");
-$stmt->execute([$min_date, $max_date]);
-$holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
+$company_id = get_current_company_id();
+$holidays = get_company_holidays($pdo, $company_id, $min_date, $max_date);
 
 // カレンダー表示用イベントデータの作成
 $calendar_events = [];
@@ -89,7 +88,8 @@ if (!empty($holidays)) {
 }
 
 // シフトパターン取得
-$stmt_templates = $pdo->query("SELECT * FROM shift_templates ORDER BY created_at DESC");
+$stmt_templates = $pdo->prepare("SELECT * FROM shift_templates WHERE company_id = ? ORDER BY created_at DESC");
+$stmt_templates->execute([$_SESSION['company_id']]);
 $templates = $stmt_templates->fetchAll();
 
 

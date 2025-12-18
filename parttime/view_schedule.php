@@ -24,14 +24,12 @@ $target_year_month = date('Y年n月', $timestamp);
 $min_date = date('Y-m-01', $timestamp);
 $max_date = date('Y-m-t', $timestamp);
 
-// 休日取得
-$stmt = $pdo->prepare("SELECT holiday_date FROM holidays WHERE holiday_date BETWEEN ? AND ?");
-$stmt->execute([$min_date, $max_date]);
-$holidays = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
 // 全体シフトデータ取得 (自社のみ)
 // shifts_scheduled と users を結合し、自社のユーザーのみに絞る
 $company_id = get_current_company_id();
+
+// 休日取得
+$holidays = get_company_holidays($pdo, $company_id, $min_date, $max_date);
 $sql = "SELECT s.*, u.username FROM shifts_scheduled s 
         JOIN users u ON s.user_id = u.user_id 
         WHERE s.shift_date BETWEEN ? AND ? 
