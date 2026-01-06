@@ -1,0 +1,39 @@
+.approval-table th,
+.approval-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 0.9em;
+    vertical-align: middle;
+}
+
+.user-section {
+    margin-bottom: 30px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.diff-alert {
+    background-color: #fff3cd;
+}
+
+.status-approved {
+    color: #198754;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: #fd7e14;
+    font-weight: bold;
+}
+
+/* Added for attendance_list_view.php */
+.attendance-table th,
+.attendance-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+}

@@ -1,19 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>勤怠確認・修正 - アルバイトシフト管理</title>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>/css/style.css">
-    <style>
-        .attendance-table th, .attendance-table td { padding: 10px; border: 1px solid #ddd; text-align: center; vertical-align: middle; }
-        .status-pending { color: #fd7e14; font-weight: bold; }
-        .status-approved { color: #198754; font-weight: bold; }
-        .diff-alert { background-color: #fff3cd; }
-    </style>
-</head>
-<body>
-    <?php render_header('勤怠確認・修正'); ?>
+<?php render_header('勤怠確認・修正', true, ['attendance.css']); ?>
 
     <div class="container">
         <h1 class="mb-4">勤怠確認・修正</h1>
@@ -196,4 +181,4 @@
         }
     </script>
     </script>
-    <?php render_footer(); ?>
+<?php render_footer(); ?>

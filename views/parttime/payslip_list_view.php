@@ -1,4 +1,4 @@
-<?php render_header('給与明細'); ?>
+<?php render_header('給与明細', true, ['payslip.css']); ?>
 <div class="row justify-content-center">
   <div class="col-md-8">
     <h1 class="h3 mb-4">給与明細</h1>

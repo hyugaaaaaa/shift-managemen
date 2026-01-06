@@ -1,4 +1,4 @@
-<?php render_header('新規登録'); ?>
+<?php render_header('新規登録', false, ['auth.css']); ?>
 
 <div class="row justify-content-center">
     <div class="col-md-6">

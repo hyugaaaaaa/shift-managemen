@@ -17,7 +17,7 @@ if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 
 $_SESSION['last_activity'] = time();
 
 // 共通ヘッダー出力関数
-function render_header($title = 'シフト管理', $show_nav = true){
+function render_header($title = 'シフト管理', $show_nav = true, $extra_css = []){
     ?>
 <!doctype html>
 <html lang="ja">
@@ -33,7 +33,14 @@ function render_header($title = 'シフト管理', $show_nav = true){
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
   <!-- カスタムCSS (キャッシュバスター付き) -->
-  <link href="<?php echo BASE_PATH; ?>/css/style.css?v=<?php echo time(); ?>" rel="stylesheet">
+  <link href="<?php echo BASE_PATH; ?>/css/common.css?v=<?php echo time(); ?>" rel="stylesheet">
+  <?php
+  if (!empty($extra_css)) {
+      foreach ($extra_css as $css_file) {
+          echo '<link href="' . BASE_PATH . '/css/' . $css_file . '?v=' . time() . '" rel="stylesheet">' . "\n";
+      }
+  }
+  ?>
 </head>
 <body class="<?php echo !$show_nav ? 'login-page' : ''; ?>">
 <?php if($show_nav): ?>

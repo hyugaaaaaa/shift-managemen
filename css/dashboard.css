@@ -1,0 +1,396 @@
+/* Mobile Calendar List View */
+.mobile-calendar-day {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    border: 1px solid #eee;
+    transition: transform 0.2s;
+}
+
+.mobile-calendar-day:active {
+    transform: scale(0.98);
+}
+
+.mobile-calendar-day.today {
+    border: 2px solid var(--primary-color);
+    background-color: #f0f4ff;
+    position: relative;
+    overflow: hidden;
+}
+
+.mobile-calendar-day.today::before {
+    content: 'TODAY';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    opacity: 0.3;
+}
+
+.mobile-calendar-day.holiday {
+    background-color: #fafafa;
+}
+
+.mobile-date-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+}
+
+.mobile-date-sub {
+    font-size: 0.9em;
+    color: var(--text-muted);
+    margin-left: 5px;
+}
+
+/* Day of week colors */
+.dow-0 {
+    color: var(--danger-color);
+}
+
+/* Sun */
+.dow-6 {
+    color: var(--primary-color);
+}
+
+/* Sat */
+
+.mobile-shift-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mobile-shift-item {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-shift-normal {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border-left: 4px solid #1565c0;
+}
+
+.mobile-shift-start {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #2e7d32;
+}
+
+.mobile-shift-end {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #c62828;
+}
+
+.mobile-note {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-left: 5px;
+}
+
+/* Mobile Dashboard Styles (Additional) */
+.mobile-calendar-day {
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+}
+
+.mobile-calendar-day.today {
+    border-left: 4px solid var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+.mobile-calendar-day.holiday {
+    background-color: #fff5f5;
+}
+
+.mobile-date-header {
+    margin-bottom: 8px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-holiday-badge {
+    background-color: var(--danger-color);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+/* Mobile Timeline Dashboard */
+.mobile-calendar-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 10px;
+}
+
+.timeline-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    align-items: flex-start;
+}
+
+.timeline-left {
+    width: 60px;
+    text-align: center;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.timeline-date {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-dark);
+}
+
+.timeline-dow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 4px;
+    color: var(--text-muted);
+}
+
+.timeline-right {
+    flex-grow: 1;
+    padding-left: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.timeline-right::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    bottom: 5px;
+    width: 3px;
+    background-color: var(--border-color);
+    border-radius: 3px;
+}
+
+/* Status Colors for Left Border */
+.status-normal .timeline-right::before {
+    background-color: var(--primary-color);
+}
+
+.status-holiday .timeline-right::before {
+    background-color: var(--danger-color);
+}
+
+.status-empty .timeline-right::before {
+    background-color: var(--border-color);
+    opacity: 0.5;
+}
+
+.timeline-shift-item {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+}
+
+.timeline-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: block;
+}
+
+.timeline-holiday-badge {
+    background: #ffebee;
+    color: var(--danger-color);
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+/* Day of week colors */
+.dow-0 .timeline-date,
+.dow-0 .timeline-dow {
+    color: var(--danger-color);
+}
+
+/* Sun */
+.dow-6 .timeline-date,
+.dow-6 .timeline-dow {
+    color: var(--primary-color);
+}
+
+/* Sat */
+
+/* Mobile Dot Grid Calendar */
+.mobile-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 20px;
+}
+
+.mobile-grid-cell {
+    aspect-ratio: 1;
+    /* Square cells */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.mobile-grid-cell.active {
+    border-color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+.mobile-grid-date {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.dow-0 .mobile-grid-date {
+    color: var(--danger-color);
+}
+
+.dow-6 .mobile-grid-date {
+    color: var(--primary-color);
+}
+
+.mobile-grid-dots {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+.mobile-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.dot-shift {
+    background-color: var(--primary-color);
+}
+
+.dot-holiday {
+    background-color: var(--danger-color);
+}
+
+.mobile-detail-area {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    min-height: 100px;
+    animation: fadeIn 0.3s ease;
+}
+
+.mobile-detail-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.mobile-detail-content {
+    font-size: 0.95rem;
+}
+
+
+.dot-pending {
+    background-color: var(--primary-color);
+}
+
+.dot-approved {
+    background-color: var(--success-color);
+}
+
+/* Mobile Staff Count */
+.mobile-staff-count {
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+/* Monthly Hours Mobile Cards */
+.monthly-stat-item {
+    background: var(--bg-color);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.monthly-stat-item .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.monthly-stat-item .stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.total-pay-mobile {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+
+    /* Optimize calendar for medium screens */
+    .mobile-calendar-grid {
+        gap: 6px;
+    }
+
+    .mobile-grid-cell {
+        font-size: 1rem;
+    }
+}

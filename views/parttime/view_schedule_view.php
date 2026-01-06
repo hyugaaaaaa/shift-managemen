@@ -5,7 +5,7 @@
  * 確定したシフトの一覧を表形式で表示します。
  * 日跨ぎシフトの場合は、分割された状態で表示されます。
  */
-render_header('確定シフト'); ?>
+render_header('確定シフト', true, ['dashboard.css', 'calendar.css']); ?>
 <?php
 // 前月・次月リンク用
 $prev_month = date('Y-m', strtotime($min_date . ' -1 month'));

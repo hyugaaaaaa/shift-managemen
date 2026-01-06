@@ -1,0 +1,201 @@
+/* Payslip Specific */
+.payslip-container {
+    background: white;
+    padding: 40px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    max-width: 900px;
+    margin: 0 auto;
+    border-top: 5px solid var(--primary-color);
+}
+
+.payslip-header {
+    background: var(--bg-color);
+    color: var(--text-dark);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.payslip-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.total-section {
+    background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 20px 30px;
+    border-radius: var(--radius-md);
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+}
+
+.total-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-right: 20px;
+    opacity: 0.9;
+}
+
+.total-amount {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+/* Payslip Action Buttons */
+.action-buttons {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+}
+
+/* Payslip Item Spacing */
+.payslip-body .table-custom td {
+    padding-bottom: 2rem;
+}
+
+.payslip-employee-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+/* Fluid Typography for Payslip */
+.payslip-title {
+    font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+}
+
+/* Print Styles (Payslip) */
+@media print {
+    .payslip-container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        border-top: 2px solid #000;
+    }
+
+    .payslip-header {
+        padding: 10px 0;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #eee;
+        background: transparent;
+    }
+
+    .payslip-title {
+        font-size: 1.4rem;
+        margin-bottom: 0;
+        color: #000;
+    }
+
+    .company-name {
+        font-size: 0.9rem;
+        color: #000;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        margin-bottom: 0;
+    }
+
+    .info-item label {
+        color: #666;
+    }
+
+    .info-item .value {
+        color: #000;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        border-left: 4px solid #666;
+        padding-left: 8px;
+        color: #000;
+    }
+
+    .table-custom {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .table-custom th {
+        padding: 4px 8px;
+        background-color: #f0f0f0 !important;
+        color: #333 !important;
+        font-size: 0.8rem;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .table-custom td {
+        padding: 4px 8px;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.9rem;
+    }
+
+    .payslip-body .table-custom td {
+        padding-bottom: 4px;
+    }
+
+    .total-section {
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: #fff !important;
+        border: 2px solid #000;
+        color: #000 !important;
+        box-shadow: none;
+    }
+
+    .total-label {
+        font-size: 1rem;
+        color: #000;
+    }
+
+    .total-amount {
+        font-size: 1.8rem;
+        color: #000;
+    }
+
+    .footer-note {
+        margin-top: 30px;
+        font-size: 8pt;
+        color: #666;
+        text-align: center;
+    }
+
+    .row {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .col-md-6 {
+        width: 50%;
+        float: left;
+        padding: 0 10px;
+    }
+
+    .payslip-employee-name {
+        color: #000;
+    }
+}

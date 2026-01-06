@@ -1,4 +1,4 @@
-<?php render_header('ログイン', false); ?>
+<?php render_header('ログイン', false, ['auth.css']); ?>
 
 <div class="login-card fade-in-up">
   <div class="login-header">

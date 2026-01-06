@@ -1,4 +1,4 @@
-<?php render_header('登録完了'); ?>
+<?php render_header('登録完了', true, ['auth.css']); ?>
 
 <div class="row justify-content-center">
     <div class="col-md-8">

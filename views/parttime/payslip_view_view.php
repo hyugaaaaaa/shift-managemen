@@ -8,7 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="<?php echo BASE_PATH; ?>/css/style.css?v=<?php echo time(); ?>" rel="stylesheet">
+<link href="<?php echo BASE_PATH; ?>/css/common.css?v=<?php echo time(); ?>" rel="stylesheet">
+<link href="<?php echo BASE_PATH; ?>/css/payslip.css?v=<?php echo time(); ?>" rel="stylesheet">
 </head>
 <body>
 

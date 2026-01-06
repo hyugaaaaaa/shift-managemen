@@ -1,20 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>勤怠承認 - シフト管理システム</title>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>/css/style.css">
-    <style>
-        .approval-table th, .approval-table td { padding: 8px; border: 1px solid #ddd; text-align: center; font-size: 0.9em; vertical-align: middle; }
-        .user-section { margin-bottom: 30px; border: 1px solid #ccc; padding: 15px; border-radius: 5px; background-color: #f9f9f9; }
-        .diff-alert { background-color: #fff3cd; }
-        .status-approved { color: #198754; font-weight: bold; }
-        .status-pending { color: #fd7e14; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <?php render_header('勤怠承認'); ?>
+<?php render_header('勤怠承認', true, ['attendance.css']); ?>
 
     <div class="container">
         <h1 class="mb-4">勤怠承認画面</h1>
@@ -222,4 +206,4 @@
         }
     </script>
     </script>
-    <?php render_footer(); ?>
+<?php render_footer(); ?>

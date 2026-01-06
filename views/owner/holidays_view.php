@@ -1,4 +1,4 @@
-<?php render_header('定休日設定'); ?>
+<?php render_header('定休日設定', true, ['calendar.css', 'dashboard.css']); ?>
 
 <div class="container mt-4">
     <h1 class="mb-4">定休日設定</h1>

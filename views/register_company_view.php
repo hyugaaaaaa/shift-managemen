@@ -1,4 +1,4 @@
-<?php render_header('企業アカウント登録'); ?>
+<?php render_header('企業アカウント登録', true, ['auth.css']); ?>
 
 <div class="row justify-content-center">
     <div class="col-md-8">

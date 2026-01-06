@@ -1,4 +1,4 @@
-<?php render_header('アルバイト登録'); ?>
+<?php render_header('アルバイト登録', true, ['auth.css']); ?>
 
 <div class="row justify-content-center">
     <div class="col-md-6">

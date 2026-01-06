@@ -1,4 +1,4 @@
-<?php render_header('パスワード変更'); ?>
+<?php render_header('パスワード変更', true, ['auth.css']); ?>
 
 <div class="row justify-content-center">
     <div class="col-md-6">

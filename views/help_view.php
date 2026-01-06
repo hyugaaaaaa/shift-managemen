@@ -3,7 +3,7 @@
  * ヘルプ画面のビュー
  * タブ切り替えレイアウト
  */
-render_header('ヘルプ'); ?>
+render_header('ヘルプ', true, ['help.css']); ?>
 </div><!-- Close default container -->
 
 <div class="container py-4">

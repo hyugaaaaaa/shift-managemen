@@ -1,4 +1,4 @@
-<?php render_header('シフトカレンダー'); ?>
+<?php render_header('シフトカレンダー', true, ['dashboard.css', 'calendar.css']); ?>
 <div class="page-container">
     <div class="page-header">
         <h1 class="page-title">ダッシュボード</h1>

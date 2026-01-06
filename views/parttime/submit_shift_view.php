@@ -5,7 +5,7 @@
  * ユーザーが希望するシフトの日付、開始・終了時刻を入力するフォームを表示します。
  * エラーメッセージや成功メッセージがある場合はそれらも表示します。
  */
-render_header('希望シフト提出'); ?>
+render_header('希望シフト提出', true, ['dashboard.css', 'calendar.css']); ?>
 <!-- FullCalendar CDN -->
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 

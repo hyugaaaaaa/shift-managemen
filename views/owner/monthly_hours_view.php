@@ -1,4 +1,4 @@
-<?php render_header('月間時間集計'); ?>
+<?php render_header('月間時間集計', true, ['monthly_hours.css', 'dashboard.css']); ?>
 
 <div class="page-container">
     <div class="page-header">
