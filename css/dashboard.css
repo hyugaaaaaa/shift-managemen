@@ -333,11 +333,40 @@
 
 
 .dot-pending {
-    background-color: var(--primary-color);
+    background-color: var(--warning-color);
 }
 
 .dot-approved {
     background-color: var(--success-color);
+}
+
+/* Request Status Dots (for manage_requests calendar) */
+.request-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.request-dot.dot-pending {
+    background-color: var(--warning-color);
+}
+
+.request-dot.dot-approved {
+    background-color: var(--success-color);
+}
+
+.request-dot.dot-rejected {
+    background-color: var(--danger-color);
+}
+
+/* Mobile Request Count (plain number) */
+.mobile-request-count {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+    margin-top: 2px;
 }
 
 /* Mobile Staff Count */

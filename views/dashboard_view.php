@@ -355,7 +355,7 @@
                         <?php if ($has_any_shift): 
                             $uniqueCount = isset($unique_users_by_date[$currentDate]) ? count($unique_users_by_date[$currentDate]) : 0;
                         ?>
-                            <div class="mobile-staff-count"><?php echo $uniqueCount; ?></div>
+                            <span class="mobile-request-count"><?php echo $uniqueCount; ?></span>
                         <?php endif; ?>
                     <?php else: ?>
                         <?php if ($has_my_shift): ?>

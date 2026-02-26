@@ -1,0 +1,28 @@
+{
+  "name": "shift_management",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyugaaaaaa/shift-managemen.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hyugaaaaaa/shift-managemen/issues"
+  },
+  "homepage": "https://github.com/hyugaaaaaa/shift-managemen#readme",
+  "description": "",
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "typescript": "^5.9.3"
+  }
+}

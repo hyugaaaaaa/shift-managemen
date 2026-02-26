@@ -55,10 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $valid_token) {
             }
         }
     }
-}                $error = 'エラーが発生しました。';
-            }
-        }
-    }
 }
 
 $csrf_token = generate_csrf_token();

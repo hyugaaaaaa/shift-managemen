@@ -34,6 +34,18 @@ body {
     margin: 0;
 }
 
+.monthly-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+@media (min-width: 768px) {
+    .monthly-title {
+        font-size: 1.5rem;
+    }
+}
+
 .filter-form {
     display: flex;
     align-items: center;
